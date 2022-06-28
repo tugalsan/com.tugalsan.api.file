@@ -6,6 +6,7 @@ import java.nio.file.*;
 import java.util.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
+import java.util.stream.*;
 
 public class TS_PathUtils {
 
@@ -67,5 +68,13 @@ public class TS_PathUtils {
 
     public static String getDriveLetter(Path path) {
         return path.getRoot().toString();
+    }
+
+    public static boolean contains(List<Path> sources, Path searchFor) {
+        return sources.stream().filter(src -> equals(src, searchFor)).findAny().isPresent();
+    }
+
+    public static boolean equals(Path src1, Path src2) {
+        return src1.toAbsolutePath().toString().equals(src2.toAbsolutePath().toString());
     }
 }
