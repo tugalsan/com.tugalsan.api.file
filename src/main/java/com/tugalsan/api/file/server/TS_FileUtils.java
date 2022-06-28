@@ -9,6 +9,7 @@ import javax.xml.bind.*;
 import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
+import java.util.stream.*;
 
 public class TS_FileUtils {
 
@@ -265,5 +266,12 @@ public class TS_FileUtils {
 
     public static Path rename(Path source, CharSequence newFileName) {
         return moveAsFile(source, source.resolveSibling(newFileName.toString()));
+    }
+
+    public static Path imitateNameType(Path src, String newType) {
+        var type = getNameType(src);
+        var strSrc = src.toString();
+        var strDst = strSrc.substring(0, strSrc.length() - type.length()) + newType;
+        return Path.of(strDst);
     }
 }
