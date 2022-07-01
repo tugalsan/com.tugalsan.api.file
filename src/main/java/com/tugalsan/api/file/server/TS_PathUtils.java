@@ -35,7 +35,7 @@ public class TS_PathUtils {
                 return null;
             }
             return isURL ? Path.of(new URL(path).toURI()) : Path.of(path);
-        }, exception -> {
+        }, e -> {
             d.ce("toPath", e.getMessage());
             return null;
         });
