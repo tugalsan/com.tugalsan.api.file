@@ -6,7 +6,7 @@ import java.nio.file.*;
 import java.util.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
-import java.util.stream.*;
+import com.tugalsan.api.unsafe.client.*;
 
 public class TS_PathUtils {
 
@@ -27,7 +27,7 @@ public class TS_PathUtils {
     }
 
     public static Path toPath(CharSequence fileOrDirectory) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
             if (isURL && !path.toLowerCase(Locale.ROOT).startsWith("file:")) {
@@ -35,19 +35,17 @@ public class TS_PathUtils {
                 return null;
             }
             return isURL ? Path.of(new URL(path).toURI()) : Path.of(path);
-        } catch (Exception e) {
+        }, exception -> {
             d.ce("toPath", e.getMessage());
             return null;
-        }
+        });
     }
 
     public static Path toPath(Class c) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             var url = c.getProtectionDomain().getCodeSource().getLocation();
             return Path.of(url.toURI());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     //GOODIES
@@ -59,11 +57,11 @@ public class TS_PathUtils {
     }
 
     public static String substract(String from_childFullPath, String to_parentPath) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             return from_childFullPath.substring(to_parentPath.length() + 1);
-        } catch (Exception e) {
-        }
-        return null;
+        }, exception -> {
+            return null;
+        });
     }
 
     public static String getDriveLetter(Path path) {

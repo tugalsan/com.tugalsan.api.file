@@ -4,10 +4,11 @@ import java.io.*;
 import java.util.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
-import com.tugalsan.api.list.client.*; 
+import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
+import com.tugalsan.api.unsafe.client.*;
 
 public class TS_DirectoryUtils {
 
@@ -131,7 +132,7 @@ public class TS_DirectoryUtils {
 
     @Deprecated//MAY NOT BE WORKING ON WINDOWS SERVER 2008 R2
     public static void deleteDirectoryIfExists2(Path path, boolean dontDeleteSelfDirectory) {
-        try {
+        TGS_UnSafe.execute(() -> {
             if (!isExistDirectory(path)) {
                 return;
             }
@@ -139,35 +140,36 @@ public class TS_DirectoryUtils {
             Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
 
                 @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    d.ci("visitFile", file);
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    return TGS_UnSafe.compile(() -> {
+                        d.ci("visitFile", file);
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    });
                 }
 
                 @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    d.ci("postVisitDirectory", dir);
-                    if (dir.toAbsolutePath().toString().equalsIgnoreCase(pathStr)) {
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                    return TGS_UnSafe.compile(() -> {
+                        d.ci("postVisitDirectory", dir);
+                        if (dir.toAbsolutePath().toString().equalsIgnoreCase(pathStr)) {
+                            return FileVisitResult.CONTINUE;
+                        }
+                        Files.delete(dir);
                         return FileVisitResult.CONTINUE;
-                    }
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
+                    });
                 }
             });
             if (!dontDeleteSelfDirectory) {
                 Files.deleteIfExists(path);
             }
-        } catch (Exception e) {
-            d.ci("deleteDirectoryIfExists", e);
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     public static Path assureExists(Path path) {
         TS_DirectoryUtils.createDirectoriesIfNotExists(path);
         if (!TS_DirectoryUtils.isExistDirectory(path)) {
-            throw new RuntimeException("TS_DirectoryUtils.isExistDirectory(" + path + ") == false");
+            TGS_UnSafe.catchMeIfUCan(d.className, "assureExists", "!TS_DirectoryUtils.isExistDirectory(path)");
         }
         return path;
     }
@@ -194,7 +196,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean isEmptyDirectory(Path directory, boolean recursive) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             if (recursive) {
                 if (!isExistDirectory(directory)) {
                     return false;
@@ -210,9 +212,7 @@ public class TS_DirectoryUtils {
                     return !dirStream.iterator().hasNext();
                 }
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     public static boolean deleteDirectoryIfExistsIfEmpty(Path directory) {
@@ -258,7 +258,7 @@ public class TS_DirectoryUtils {
 
     //DONT TOUCH: ARRAYLIST<PATH> DOES NOT WORKING, DONT KNOW WHY!!
     public static List<String> subFiles2(Path parentDirectory, CharSequence fileNameMatcher, boolean sorted, boolean recursive) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             assureExists(parentDirectory);
             List<String> subFiles;
             if (fileNameMatcher == null) {
@@ -297,9 +297,7 @@ public class TS_DirectoryUtils {
                 Collections.sort(subFiles);
             }
             return subFiles;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     public static List<String> subDirectories2(Path parentDirectory, boolean sorted, boolean recursive) {
@@ -310,7 +308,7 @@ public class TS_DirectoryUtils {
     }
 
     public static List<Path> subDirectories(Path parentDirectory, boolean sorted, boolean recursive) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             assureExists(parentDirectory);
             List<Path> subDirectories;
             if (recursive) {
@@ -329,9 +327,7 @@ public class TS_DirectoryUtils {
                 Collections.sort(subDirectories);
             }
             return subDirectories;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
 }
