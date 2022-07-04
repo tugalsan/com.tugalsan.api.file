@@ -112,7 +112,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean deleteDirectoryIfExists(Path path, boolean dontDeleteSelfDirectory) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
                 try ( var entries = Files.newDirectoryStream(path)) {
                     for (var entry : entries) {
@@ -124,10 +124,10 @@ public class TS_DirectoryUtils {
                 Files.delete(path);
             }
             return true;
-        } catch (Exception e) {
+        }, e -> {
             e.printStackTrace();
             return false;
-        }
+        });
     }
 
     @Deprecated//MAY NOT BE WORKING ON WINDOWS SERVER 2008 R2
@@ -179,16 +179,16 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean createDirectoriesIfNotExists(Path directory) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             if (!isExistDirectory(directory)) {
                 directory.toFile().mkdirs();
                 //return Files.createDirectories(directory);//BUGGY
             }
             return true;
-        } catch (Exception e) {
+        }, e -> {
             e.printStackTrace();
             return false;
-        }
+        });
     }
 
     public static boolean isEmptyDirectory(Path directory) {
@@ -220,7 +220,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean deleteDirectoryIfExistsIfEmpty(Path directory, boolean recursive) {
-        try {
+        return TGS_UnSafe.compile(() -> {
             if (recursive) {
                 if (!isEmptyDirectory(directory, true)) {
                     return false;
@@ -229,10 +229,10 @@ public class TS_DirectoryUtils {
             }
             Files.deleteIfExists(directory);
             return true;
-        } catch (Exception e) {
+        }, e -> {
             e.printStackTrace();
             return false;
-        }
+        });
     }
 
     public static List<Path> subFilesByType(Path path, String type) {
