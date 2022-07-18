@@ -206,7 +206,9 @@ public class TS_FileUtils {
     public static Path copyFile(Path source, Path dest, boolean overwrite) {
         return TGS_UnSafe.compile(() -> {
             if (!isExistFile(dest)) {
-                Files.copy(source, dest);
+                TGS_UnSafe.execute(() -> {
+                    Files.copy(source, dest);
+                }, e -> TGS_UnSafe.doNothing());
                 return dest;
             }
             if (overwrite) {
