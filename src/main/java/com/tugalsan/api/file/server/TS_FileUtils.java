@@ -110,7 +110,7 @@ public class TS_FileUtils {
             Files.createFile(file);
             return true;
         }, exception -> {
-            exception.printStackTrace();
+            d.ce("createFile", file, exception);
             return false;
         });
     }
@@ -129,7 +129,7 @@ public class TS_FileUtils {
                 return true;
             }
             Files.deleteIfExists(file);
-            return true;
+            return isExistFile(file);
         }, exception -> {
             if (printStackTrace) {
                 exception.printStackTrace();
