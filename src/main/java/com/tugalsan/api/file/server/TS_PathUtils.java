@@ -27,7 +27,7 @@ public class TS_PathUtils {
         return path.getParent();
     }
 
-    public static TGS_Pack2<Path, Exception> toPathAndError(CharSequence fileOrDirectory) {
+    public static TGS_Pack2<Path, Exception> toPathOrError(CharSequence fileOrDirectory) {
         return TGS_UnSafe.compile(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
