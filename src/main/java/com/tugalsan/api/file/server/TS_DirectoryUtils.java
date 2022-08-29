@@ -12,7 +12,7 @@ import com.tugalsan.api.unsafe.client.*;
 
 public class TS_DirectoryUtils {
 
-    final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class.getSimpleName());
+    final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
 
     public static Path rename(Path path, CharSequence newFolderName) {
         return TS_FileUtils.rename(path, newFolderName);

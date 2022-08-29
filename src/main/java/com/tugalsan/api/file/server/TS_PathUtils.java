@@ -11,7 +11,7 @@ import com.tugalsan.api.unsafe.client.*;
 
 public class TS_PathUtils {
 
-    final private static TS_Log d = TS_Log.of(TS_PathUtils.class.getSimpleName());
+    final private static TS_Log d = TS_Log.of(TS_PathUtils.class);
 
     public static Path getPathCurrent() {
         return Path.of(System.getProperty("user.dir"));

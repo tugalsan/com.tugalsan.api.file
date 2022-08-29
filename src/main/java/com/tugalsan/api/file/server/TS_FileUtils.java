@@ -12,7 +12,7 @@ import com.tugalsan.api.unsafe.client.*;
 
 public class TS_FileUtils {
 
-    final private static TS_Log d = TS_Log.of(TS_FileUtils.class.getSimpleName());
+    final private static TS_Log d = TS_Log.of(TS_FileUtils.class);
 
     public static FileTime toFileTime(TGS_Time time) {
         return FileTime.fromMillis(time.toDateMillis());
