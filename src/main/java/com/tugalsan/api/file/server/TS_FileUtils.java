@@ -19,7 +19,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_Time toTime(FileTime fileTime) {
-        return TGS_Time.of(fileTime.toMillis());
+        return TGS_Time.ofMillis(fileTime.toMillis());
     }
 
     public static long getFileSizeInBytes(Path file) {
@@ -49,7 +49,7 @@ public class TS_FileUtils {
 
     public static TGS_Time getTimeLastModified(Path path) {
         return TGS_UnSafe.compile(() -> {
-            return TGS_Time.of(
+            return TGS_Time.ofMillis(
                     Files
                             .readAttributes(path, BasicFileAttributes.class)
                             .lastModifiedTime()
