@@ -100,7 +100,7 @@ public class TS_DirectoryUtils {
         batCode.add("cd " + parentDirectory.toAbsolutePath().toString());
         batCode.add("FOR /d /r . %%d IN (backdrops) DO @IF EXIST \"%%d\" rd /s /q \"%%d\"");
         d.cr("deleteSubDirectories", "batCode", batCode);
-        TS_RuntimeUtils.runConsoleBAT_readResult(batCode.toString());
+        TS_Process.ofCode(batCode.toString(), TS_Process.FileType.BAT);
     }
 
     public static void deleteSubFiles(Path parentDirectory, String fileNameMatcher) {
