@@ -55,7 +55,7 @@ public class TS_FileUtils {
                             .lastModifiedTime()
                             .toMillis()
             );
-        });
+        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static TGS_Time getTimeLastAccessTime(Path path) {
@@ -68,7 +68,7 @@ public class TS_FileUtils {
                                     .toMillis()
                     )
             );
-        });
+        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static TGS_Time getTimeCreationTime(Path path) {
@@ -81,7 +81,7 @@ public class TS_FileUtils {
                                     .toMillis()
                     )
             );
-        });
+        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static byte[] read(Path source) {
@@ -232,7 +232,7 @@ public class TS_FileUtils {
             var bytes = Files.readAllBytes(file);
             var hash = MessageDigest.getInstance("MD5").digest(bytes);
             return DatatypeConverter.printHexBinary(hash);
-        });
+        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static Path rename(Path source, CharSequence newFileName) {
