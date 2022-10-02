@@ -18,7 +18,7 @@ public class TS_PathUtils {
     }
 
     public static List<Path> toPaths(String list, String delimiter) {
-        return TGS_StreamUtils.toList(
+        return TGS_StreamUtils.toLst(
                 Arrays.stream(list.split(delimiter)).map(split -> Path.of(split))
         );
     }

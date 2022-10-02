@@ -250,7 +250,7 @@ public class TS_DirectoryUtils {
     }
 
     public static List<Path> subFiles(Path parentDirectory, CharSequence fileNameMatcher, boolean sorted, boolean recursive) {
-        return TGS_StreamUtils.toList(
+        return TGS_StreamUtils.toLst(
                 subFiles2(parentDirectory, fileNameMatcher, sorted, recursive)
                         .stream().map(str -> Path.of(str))
         );
@@ -263,12 +263,12 @@ public class TS_DirectoryUtils {
             List<String> subFiles;
             if (fileNameMatcher == null) {
                 if (recursive) {
-                    subFiles = TGS_StreamUtils.toList(
+                    subFiles = TGS_StreamUtils.toLst(
                             Files.walk(parentDirectory)
                                     .filter(p -> !Files.isDirectory(p)).map(p -> p.toString())
                     );
                 } else {
-                    subFiles = TGS_StreamUtils.toList(
+                    subFiles = TGS_StreamUtils.toLst(
                             Files.list(parentDirectory)
                                     .filter(p -> !Files.isDirectory(p)).map(p -> p.toString())
                     );
@@ -281,12 +281,12 @@ public class TS_DirectoryUtils {
                 var matcherDW = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr.toLowerCase(Locale.ROOT));//"glob:*.java" or glob:**/*.java;
                 var matcherDW2 = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr.toLowerCase());//"glob:*.java" or glob:**/*.java;
                 if (recursive) {
-                    subFiles = TGS_StreamUtils.toList(
+                    subFiles = TGS_StreamUtils.toLst(
                             Files.walk(parentDirectory)
                                     .filter(p -> !Files.isDirectory(p) && (matcher.matches(p) || matcherUP.matches(p) || matcherDW.matches(p) || matcherUP2.matches(p) || matcherDW2.matches(p))).map(p -> p.toString())
                     );
                 } else {
-                    subFiles = TGS_StreamUtils.toList(
+                    subFiles = TGS_StreamUtils.toLst(
                             Files.list(parentDirectory)
                                     .filter(p -> !Files.isDirectory(p) && (matcher.matches(p) || matcherUP.matches(p) || matcherDW.matches(p) || matcherUP2.matches(p) || matcherDW2.matches(p))).map(p -> p.toString())
                     );
@@ -301,7 +301,7 @@ public class TS_DirectoryUtils {
     }
 
     public static List<String> subDirectories2(Path parentDirectory, boolean sorted, boolean recursive) {
-        return TGS_StreamUtils.toList(
+        return TGS_StreamUtils.toLst(
                 subDirectories(parentDirectory, sorted, recursive).stream()
                         .map(p -> p.toAbsolutePath().toString())
         );
@@ -312,12 +312,12 @@ public class TS_DirectoryUtils {
             assureExists(parentDirectory);
             List<Path> subDirectories;
             if (recursive) {
-                subDirectories = TGS_StreamUtils.toList(
+                subDirectories = TGS_StreamUtils.toLst(
                         Files.walk(parentDirectory)
                                 .filter(Files::isDirectory)
                 );
             } else {
-                subDirectories = TGS_StreamUtils.toList(
+                subDirectories = TGS_StreamUtils.toLst(
                         Files.list(parentDirectory)
                                 .filter(Files::isDirectory)
                 );

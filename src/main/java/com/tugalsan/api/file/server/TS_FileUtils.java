@@ -147,13 +147,13 @@ public class TS_FileUtils {
     }
 
     public static List<String> getNameFull(List<Path> paths) {
-        return TGS_StreamUtils.toList(
+        return TGS_StreamUtils.toLst(
                 paths.stream().map(path -> path.getFileName().toString())
         );
     }
 
     public static List<String> getNameFull2(List<String> paths) {
-        return getNameFull(TGS_StreamUtils.toList(
+        return getNameFull(TGS_StreamUtils.toLst(
                 paths.stream()
                         .map(str -> Path.of(str))
         ));

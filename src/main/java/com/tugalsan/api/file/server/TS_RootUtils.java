@@ -22,7 +22,7 @@ public class TS_RootUtils {
     }
 
     public static List<Path> getRoots() {
-        return TGS_StreamUtils.toList(
+        return TGS_StreamUtils.toLst(
                 TGS_StreamUtils.of(
                         FileSystems.getDefault().getRootDirectories()
                 )
