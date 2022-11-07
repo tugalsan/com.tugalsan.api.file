@@ -14,6 +14,27 @@ public class TS_DirectoryUtils {
 
     final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
 
+    public static String getName(Path path) {
+        //EASY WAY
+        var name = path.getFileName();
+        if (name != null) {
+            return name.toString();
+        }
+        //HARD WAY
+        var pathStr = path.toString();
+        //TRIM
+        while (pathStr.endsWith(File.separator)) {
+            pathStr = pathStr.substring(0, pathStr.length() - File.separator.length());
+        }
+        //PEEK
+        var idx = pathStr.lastIndexOf(File.separator);
+        if (idx == -1) {
+            return null;
+        }
+        //RETURN
+        return pathStr.substring(idx + 1);
+    }
+
     public static Path rename(Path path, CharSequence newFolderName) {
         return TS_FileUtils.rename(path, newFolderName);
     }

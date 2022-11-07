@@ -13,6 +13,14 @@ public class TS_PathUtils {
 
     final private static TS_Log d = TS_Log.of(TS_PathUtils.class);
 
+    public static Path getPathHomeDesktop() {
+        return getPathHome().resolve("Desktop");
+    }
+
+    public static Path getPathHome() {
+        return Path.of(System.getProperty("user.home"));
+    }
+
     public static Path getPathCurrent() {
         return Path.of(System.getProperty("user.dir"));
     }
