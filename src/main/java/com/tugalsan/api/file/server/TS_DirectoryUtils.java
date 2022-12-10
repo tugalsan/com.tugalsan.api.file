@@ -13,68 +13,60 @@ import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.thread.server.TS_ThreadRun;
 import com.tugalsan.api.time.client.TGS_Time;
 import com.tugalsan.api.unsafe.client.*;
+import java.util.stream.IntStream;
 
 public class TS_DirectoryUtils {
 
     final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
 
-    public static void watchModify(Path directory, TGS_ExecutableType1<Path> file) {
-        TS_ThreadRun.now(() -> {
-            TGS_UnSafe.execute(() -> {
-                try ( var watchService = FileSystems.getDefault().newWatchService()) {
-                    directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-                    while (true) {
-                        var key = watchService.take();
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            var detectedFile = (Path) event.context();
-                            var last = watchModify_last;
-                            if (last.isEmpty() || !detectedFile.equals(last.value1)) {
-                                last.value0 = TGS_Time.of();
-                                last.value1 = detectedFile;
-                                file.execute(detectedFile);
-                                d.ci("watchModify", "new", last.value1);
-                                continue;
-                            }
-                            var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
-                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(last.value0)) {
-                                d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
-                                continue;
-                            }
-                            last.value0 = oneSecondAgo.incrementSecond(1);
-                            d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
-                            file.execute(detectedFile);
-                        }
-                        key.reset();
-                    }
-                }
-            });
-        });
+    public static enum WatchTypes {
+        CREATE, MODIFY, DELETE
     }
-    private static TGS_Pack2<TGS_Time, Path> watchModify_last = TGS_Pack2.of();
 
-    public static void watchCreate(Path directory, TGS_ExecutableType1<Path> file) {
+    public static void watch(Path directory, TGS_ExecutableType1<Path> file, WatchTypes... types) {
         TS_ThreadRun.now(() -> {
             TGS_UnSafe.execute(() -> {
+                WatchEvent.Kind<Path>[] kinds = new WatchEvent.Kind[types.length == 0 ? 3 : types.length];
+                if (types.length == 0) {
+                    kinds[0] = StandardWatchEventKinds.ENTRY_CREATE;
+                    kinds[1] = StandardWatchEventKinds.ENTRY_MODIFY;
+                    kinds[2] = StandardWatchEventKinds.ENTRY_DELETE;
+                } else {
+                    IntStream.range(0, types.length).forEachOrdered(i -> {
+                        if (types[i] == WatchTypes.CREATE) {
+                            kinds[i] = StandardWatchEventKinds.ENTRY_CREATE;
+                            return;
+                        }
+                        if (types[i] == WatchTypes.MODIFY) {
+                            kinds[i] = StandardWatchEventKinds.ENTRY_MODIFY;
+                            return;
+                        }
+                        if (types[i] == WatchTypes.DELETE) {
+                            kinds[i] = StandardWatchEventKinds.ENTRY_DELETE;
+                            return;
+                        }
+                    });
+                }
                 try ( var watchService = FileSystems.getDefault().newWatchService()) {
-                    directory.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+                    directory.register(watchService, kinds);
                     while (true) {
                         var key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
                             var detectedFile = (Path) event.context();
-                            var last = watchCreate_last;
-                            if (last.isEmpty() || !detectedFile.equals(last.value1)) {
-                                last.value0 = TGS_Time.of();
-                                last.value1 = detectedFile;
+                            if (watchBuffer.isEmpty() || !detectedFile.equals(watchBuffer.value1)) {
+                                watchBuffer.value0 = TGS_Time.of();
+                                watchBuffer.value1 = detectedFile;
                                 file.execute(detectedFile);
+                                d.ci("watchModify", "new", watchBuffer.value1);
                                 continue;
                             }
                             var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
-                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(last.value0)) {
-                                d.ci("watchCreate", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
+                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(watchBuffer.value0)) {
+                                d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", watchBuffer.value0);
                                 continue;
                             }
-                            last.value0 = oneSecondAgo.incrementSecond(1);
-                            d.ci("watchCreate", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
+                            watchBuffer.value0 = oneSecondAgo.incrementSecond(1);
+                            d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", watchBuffer.value0);
                             file.execute(detectedFile);
                         }
                         key.reset();
@@ -83,40 +75,7 @@ public class TS_DirectoryUtils {
             });
         });
     }
-    private static TGS_Pack2<TGS_Time, Path> watchCreate_last = TGS_Pack2.of();
-
-    public static void watchDelete(Path directory, TGS_ExecutableType1<Path> file) {
-        TS_ThreadRun.now(() -> {
-            TGS_UnSafe.execute(() -> {
-                try ( var watchService = FileSystems.getDefault().newWatchService()) {
-                    directory.register(watchService, StandardWatchEventKinds.ENTRY_DELETE);
-                    while (true) {
-                        var key = watchService.take();
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            var detectedFile = (Path) event.context();
-                            var last = watchDelete_last;
-                            if (last.isEmpty() || !detectedFile.equals(last.value1)) {
-                                last.value0 = TGS_Time.of();
-                                last.value1 = detectedFile;
-                                file.execute(detectedFile);
-                                continue;
-                            }
-                            var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
-                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(last.value0)) {
-                                d.ci("watchDelete", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
-                                continue;
-                            }
-                            last.value0 = oneSecondAgo.incrementSecond(1);
-                            d.ci("watchDelete", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
-                            file.execute(detectedFile);
-                        }
-                        key.reset();
-                    }
-                }
-            });
-        });
-    }
-    private static TGS_Pack2<TGS_Time, Path> watchDelete_last = TGS_Pack2.of();
+    private static TGS_Pack2<TGS_Time, Path> watchBuffer = TGS_Pack2.of();
 
     public static String getName(Path path) {
         //EASY WAY
