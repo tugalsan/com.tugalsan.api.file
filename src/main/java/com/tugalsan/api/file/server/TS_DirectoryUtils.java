@@ -1,5 +1,6 @@
 package com.tugalsan.api.file.server;
 
+import com.tugalsan.api.executable.client.TGS_ExecutableType1;
 import java.io.*;
 import java.util.*;
 import java.nio.file.*;
@@ -8,62 +9,63 @@ import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
+import com.tugalsan.api.thread.server.TS_ThreadRun;
 import com.tugalsan.api.unsafe.client.*;
 
 public class TS_DirectoryUtils {
 
     final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
 
-//    public static void watchModify(Path directory, TGS_ExecutableType1<Path> file) {
-//        TS_ThreadRun.now(() -> {
-//            TGS_UnSafe.execute(() -> {
-//                try ( var watchService = FileSystems.getDefault().newWatchService()) {
-//                    directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-//                    while (true) {
-//                        var key = watchService.take();
-//                        for (WatchEvent<?> event : key.pollEvents()) {
-//                            file.execute((Path) event.context());
-//                        }
-//                        key.reset();
-//                    }
-//                }
-//            });
-//        });
-//    }
-//
-//    public static void watchCreate(Path directory, TGS_ExecutableType1<Path> file) {
-//        TS_ThreadRun.now(() -> {
-//            TGS_UnSafe.execute(() -> {
-//                try ( var watchService = FileSystems.getDefault().newWatchService()) {
-//                    directory.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
-//                    while (true) {
-//                        var key = watchService.take();
-//                        for (WatchEvent<?> event : key.pollEvents()) {
-//                            file.execute((Path) event.context());
-//                        }
-//                        key.reset();
-//                    }
-//                }
-//            });
-//        });
-//    }
-//
-//    public static void watchDelete(Path directory, TGS_ExecutableType1<Path> file) {
-//        TS_ThreadRun.now(() -> {
-//            TGS_UnSafe.execute(() -> {
-//                try ( var watchService = FileSystems.getDefault().newWatchService()) {
-//                    directory.register(watchService, StandardWatchEventKinds.ENTRY_DELETE);
-//                    while (true) {
-//                        var key = watchService.take();
-//                        for (WatchEvent<?> event : key.pollEvents()) {
-//                            file.execute((Path) event.context());
-//                        }
-//                        key.reset();
-//                    }
-//                }
-//            });
-//        });
-//    }
+    public static void watchModify(Path directory, TGS_ExecutableType1<Path> file) {
+        TS_ThreadRun.now(() -> {
+            TGS_UnSafe.execute(() -> {
+                try ( var watchService = FileSystems.getDefault().newWatchService()) {
+                    directory.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                    while (true) {
+                        var key = watchService.take();
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            file.execute((Path) event.context());
+                        }
+                        key.reset();
+                    }
+                }
+            });
+        });
+    }
+
+    public static void watchCreate(Path directory, TGS_ExecutableType1<Path> file) {
+        TS_ThreadRun.now(() -> {
+            TGS_UnSafe.execute(() -> {
+                try ( var watchService = FileSystems.getDefault().newWatchService()) {
+                    directory.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+                    while (true) {
+                        var key = watchService.take();
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            file.execute((Path) event.context());
+                        }
+                        key.reset();
+                    }
+                }
+            });
+        });
+    }
+
+    public static void watchDelete(Path directory, TGS_ExecutableType1<Path> file) {
+        TS_ThreadRun.now(() -> {
+            TGS_UnSafe.execute(() -> {
+                try ( var watchService = FileSystems.getDefault().newWatchService()) {
+                    directory.register(watchService, StandardWatchEventKinds.ENTRY_DELETE);
+                    while (true) {
+                        var key = watchService.take();
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            file.execute((Path) event.context());
+                        }
+                        key.reset();
+                    }
+                }
+            });
+        });
+    }
     
     
     public static String getName(Path path) {

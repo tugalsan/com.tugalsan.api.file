@@ -1,5 +1,6 @@
 package com.tugalsan.api.file.server;
 
+import com.tugalsan.api.executable.client.TGS_Executable;
 import com.tugalsan.api.executable.client.TGS_ExecutableType1;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
@@ -68,6 +69,14 @@ public class TS_DirectoryWatch {
 
     public static TS_DirectoryWatch ofRecursive(Path dir, TGS_ExecutableType1<Path> forFile) {
         return TGS_UnSafe.compile(() -> new TS_DirectoryWatch(dir, forFile, true));
+    }
+    
+    public static TS_DirectoryWatch ofFile(Path file, TGS_Executable exe) {
+        return TS_DirectoryWatch.of(file.getParent(), forFile -> {
+            if (forFile.equals(file)) {
+                exe.execute();
+            }
+        });
     }
 
     private void processEvents(TGS_ExecutableType1<Path> forFile) {
