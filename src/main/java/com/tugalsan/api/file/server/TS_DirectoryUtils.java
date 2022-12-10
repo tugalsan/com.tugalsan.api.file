@@ -8,8 +8,10 @@ import java.nio.file.attribute.*;
 import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
+import com.tugalsan.api.pack.client.TGS_Pack2;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.thread.server.TS_ThreadRun;
+import com.tugalsan.api.time.client.TGS_Time;
 import com.tugalsan.api.unsafe.client.*;
 
 public class TS_DirectoryUtils {
@@ -24,7 +26,18 @@ public class TS_DirectoryUtils {
                     while (true) {
                         var key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
-                            file.execute((Path) event.context());
+                            var detectedFile = (Path) event.context();
+                            var last = watchModify_last;
+                            if (last.isEmpty() || !detectedFile.equals(last.value1)) {
+                                last.value0 = TGS_Time.of();
+                                last.value1 = detectedFile;
+                                file.execute(detectedFile);
+                                continue;
+                            }
+                            if (TGS_Time.ofSecondsAgo(1).hasSmallerTimeThanOrEqual(last.value0)) {
+                                continue;
+                            }
+                            file.execute(detectedFile);
                         }
                         key.reset();
                     }
@@ -32,6 +45,7 @@ public class TS_DirectoryUtils {
             });
         });
     }
+    private static TGS_Pack2<TGS_Time, Path> watchModify_last = TGS_Pack2.of();
 
     public static void watchCreate(Path directory, TGS_ExecutableType1<Path> file) {
         TS_ThreadRun.now(() -> {
@@ -41,7 +55,18 @@ public class TS_DirectoryUtils {
                     while (true) {
                         var key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
-                            file.execute((Path) event.context());
+                            var detectedFile = (Path) event.context();
+                            var last = watchCreate_last;
+                            if (last.isEmpty() || !detectedFile.equals(last.value1)) {
+                                last.value0 = TGS_Time.of();
+                                last.value1 = detectedFile;
+                                file.execute(detectedFile);
+                                continue;
+                            }
+                            if (TGS_Time.ofSecondsAgo(1).hasSmallerTimeThanOrEqual(last.value0)) {
+                                continue;
+                            }
+                            file.execute(detectedFile);
                         }
                         key.reset();
                     }
@@ -49,6 +74,7 @@ public class TS_DirectoryUtils {
             });
         });
     }
+    private static TGS_Pack2<TGS_Time, Path> watchCreate_last = TGS_Pack2.of();
 
     public static void watchDelete(Path directory, TGS_ExecutableType1<Path> file) {
         TS_ThreadRun.now(() -> {
@@ -58,7 +84,18 @@ public class TS_DirectoryUtils {
                     while (true) {
                         var key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
-                            file.execute((Path) event.context());
+                            var detectedFile = (Path) event.context();
+                            var last = watchDelete_last;
+                            if (last.isEmpty() || !detectedFile.equals(last.value1)) {
+                                last.value0 = TGS_Time.of();
+                                last.value1 = detectedFile;
+                                file.execute(detectedFile);
+                                continue;
+                            }
+                            if (TGS_Time.ofSecondsAgo(1).hasSmallerTimeThanOrEqual(last.value0)) {
+                                continue;
+                            }
+                            file.execute(detectedFile);
                         }
                         key.reset();
                     }
@@ -66,8 +103,8 @@ public class TS_DirectoryUtils {
             });
         });
     }
-    
-    
+    private static TGS_Pack2<TGS_Time, Path> watchDelete_last = TGS_Pack2.of();
+
     public static String getName(Path path) {
         //EASY WAY
         var name = path.getFileName();
