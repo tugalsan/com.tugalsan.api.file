@@ -32,11 +32,16 @@ public class TS_DirectoryUtils {
                                 last.value0 = TGS_Time.of();
                                 last.value1 = detectedFile;
                                 file.execute(detectedFile);
+                                d.ci("watchModify", "new", last.value1);
                                 continue;
                             }
-                            if (TGS_Time.ofSecondsAgo(1).hasSmallerTimeThanOrEqual(last.value0)) {
+                            var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
+                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(last.value0)) {
+                                d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
                                 continue;
                             }
+                            last.value0 = oneSecondAgo.incrementSecond(1);
+                            d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
                             file.execute(detectedFile);
                         }
                         key.reset();
@@ -63,9 +68,13 @@ public class TS_DirectoryUtils {
                                 file.execute(detectedFile);
                                 continue;
                             }
-                            if (TGS_Time.ofSecondsAgo(1).hasSmallerTimeThanOrEqual(last.value0)) {
+                            var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
+                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(last.value0)) {
+                                d.ci("watchCreate", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
                                 continue;
                             }
+                            last.value0 = oneSecondAgo.incrementSecond(1);
+                            d.ci("watchCreate", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
                             file.execute(detectedFile);
                         }
                         key.reset();
@@ -92,9 +101,13 @@ public class TS_DirectoryUtils {
                                 file.execute(detectedFile);
                                 continue;
                             }
-                            if (TGS_Time.ofSecondsAgo(1).hasSmallerTimeThanOrEqual(last.value0)) {
+                            var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
+                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(last.value0)) {
+                                d.ci("watchDelete", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
                                 continue;
                             }
+                            last.value0 = oneSecondAgo.incrementSecond(1);
+                            d.ci("watchDelete", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", last.value0);
                             file.execute(detectedFile);
                         }
                         key.reset();
