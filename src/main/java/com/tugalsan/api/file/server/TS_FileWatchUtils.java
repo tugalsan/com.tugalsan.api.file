@@ -55,6 +55,7 @@ public class TS_FileWatchUtils {
         return kinds;
     }
 
+    @Deprecated //Not working well
     public static void directoryRecursive(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
         TS_DirectoryWatchDriver.ofRecursive(directory, file, types);
     }
@@ -71,20 +72,20 @@ public class TS_FileWatchUtils {
                         var key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
                             var detectedFile = (Path) event.context();
-                            if (buffer.isEmpty() || !detectedFile.equals(buffer.value1)) {
-                                buffer.value0 = TGS_Time.of();
-                                buffer.value1 = detectedFile;
+                            if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {
+                                directoryBuffer.value0 = TGS_Time.of();
+                                directoryBuffer.value1 = detectedFile;
                                 file.execute(detectedFile);
-                                d.ci("watchModify", "new", buffer.value1);
+                                d.ci("watchModify", "new", directoryBuffer.value1);
                                 continue;
                             }
                             var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
-                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(buffer.value0)) {
-                                d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", buffer.value0);
+                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
+                                d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
                                 continue;
                             }
-                            buffer.value0 = oneSecondAgo.incrementSecond(1);
-                            d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", buffer.value0);
+                            directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
+                            d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
                             file.execute(detectedFile);
                         }
                         key.reset();
@@ -93,6 +94,6 @@ public class TS_FileWatchUtils {
             });
         });
     }
-    private static TGS_Pack2<TGS_Time, Path> buffer = TGS_Pack2.of();
+    private static TGS_Pack2<TGS_Time, Path> directoryBuffer = TGS_Pack2.of();
 
 }
