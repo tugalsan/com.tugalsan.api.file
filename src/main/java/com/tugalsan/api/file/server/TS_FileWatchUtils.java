@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 
 public class TS_FileWatchUtils {
 
-    final private static TS_Log d = TS_Log.of(TS_FileWatchUtils.class);
+    final private static TS_Log d = TS_Log.of(true,TS_FileWatchUtils.class);
 
     public static enum Types {
         CREATE, MODIFY, DELETE
@@ -58,7 +58,7 @@ public class TS_FileWatchUtils {
     @Deprecated //Not working well
     public static boolean directoryRecursive(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
-            d.ce("watch", "diretory not found", directory);
+            d.ci("watch", "diretory not found", directory);
             return false;
         }
         TS_DirectoryWatchDriver.ofRecursive(directory, file, types);
@@ -67,7 +67,7 @@ public class TS_FileWatchUtils {
 
     public static boolean directory(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
-            d.ce("watch", "diretory not found", directory);
+            d.ci("watch", "diretory not found", directory);
             return false;
         }
         TS_ThreadRun.now(() -> {
