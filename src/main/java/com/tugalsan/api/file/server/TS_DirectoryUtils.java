@@ -24,6 +24,9 @@ public class TS_DirectoryUtils {
     }
 
     public static void watch(Path directory, TGS_ExecutableType1<Path> file, WatchTypes... types) {
+        if (!isExistDirectory(directory)){
+            d.ce("watch", "diretory not found", directory);
+        }
         TS_ThreadRun.now(() -> {
             TGS_UnSafe.execute(() -> {
                 WatchEvent.Kind<Path>[] kinds = new WatchEvent.Kind[types.length == 0 ? 3 : types.length];
