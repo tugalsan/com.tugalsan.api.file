@@ -25,7 +25,10 @@ public class TS_FileWatchUtils {
     public static boolean file(Path targetFile, TGS_Executable exe, Types... types) {
         return directory(targetFile.getParent(), file -> {
             if (targetFile.equals(file)) {
+                d.ci("file", "files same", targetFile, file);
                 exe.execute();
+            } else {
+                d.ci("file", "file not same", targetFile, file);
             }
         }, types);
     }
