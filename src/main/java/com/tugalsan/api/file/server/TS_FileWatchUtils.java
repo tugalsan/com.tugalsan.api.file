@@ -95,5 +95,4 @@ public class TS_FileWatchUtils {
         });
     }
     private static TGS_Pack2<TGS_Time, Path> directoryBuffer = TGS_Pack2.of();
-
 }
