@@ -16,19 +16,20 @@ import java.util.stream.IntStream;
 
 public class TS_FileWatchUtils {
 
-    final private static TS_Log d = TS_Log.of(true,TS_FileWatchUtils.class);
+    final private static TS_Log d = TS_Log.of(true, TS_FileWatchUtils.class);
 
     public static enum Types {
         CREATE, MODIFY, DELETE
     }
 
     public static boolean file(Path targetFile, TGS_Executable exe, Types... types) {
-        return directory(targetFile.getParent(), file -> {
-            if (targetFile.toAbsolutePath().equals(file.toAbsolutePath())) {
-                d.ci("file", "files same", targetFile, file);
+        var targetFileName = TS_FileUtils.getNameFull(targetFile);
+        return directory(targetFile.getParent(), filename -> {
+            if (targetFileName.equals(filename)) {
+                d.ci("file", "filenames same", targetFile, filename);
                 exe.execute();
             } else {
-                d.ci("file", "file not same", targetFile, file);
+                d.ci("file", "filenames not same", targetFile, filename);
             }
         }, types);
     }
@@ -58,7 +59,7 @@ public class TS_FileWatchUtils {
         return kinds;
     }
 
-    @Deprecated //Not working well
+    @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
     public static boolean directoryRecursive(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
@@ -68,7 +69,7 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
+    public static boolean directory(Path directory, TGS_ExecutableType1<String> filename, Types... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
@@ -81,21 +82,25 @@ public class TS_FileWatchUtils {
                         var key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
                             var detectedFile = (Path) event.context();
-                            if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {
+                            if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {//IF INIT
                                 directoryBuffer.value0 = TGS_Time.of();
                                 directoryBuffer.value1 = detectedFile;
-                                file.execute(detectedFile);
+                                filename.execute(TS_FileUtils.getNameFull(detectedFile));
                                 d.ci("watchModify", "new", directoryBuffer.value1);
                                 continue;
                             }
                             var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
-                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
-                                d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
-                                continue;
+                            {//SKIP IF DOUBLE NOTIFY
+                                if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
+                                    d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                                    continue;
+                                }
                             }
-                            directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
-                            d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
-                            file.execute(detectedFile);
+                            {//NOTIFY
+                                directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
+                                d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                                filename.execute(TS_FileUtils.getNameFull(detectedFile));
+                            }
                         }
                         key.reset();
                     }

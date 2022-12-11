@@ -65,14 +65,17 @@ public class TS_DirectoryWatchDriver {
         processEvents(forFile);
     }
 
+    @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
     public static TS_DirectoryWatchDriver of(Path dir, TGS_ExecutableType1<Path> forFile, TS_FileWatchUtils.Types... types) {
         return TGS_UnSafe.compile(() -> new TS_DirectoryWatchDriver(dir, forFile, false, types));
     }
 
+    @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
     public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_ExecutableType1<Path> forFile, TS_FileWatchUtils.Types... types) {
         return TGS_UnSafe.compile(() -> new TS_DirectoryWatchDriver(dir, forFile, true, types));
     }
 
+    @Deprecated //PATH AS FILENAME?
     public static TS_DirectoryWatchDriver ofFile(Path file, TGS_Executable exe) {
         return TS_DirectoryWatchDriver.of(file.getParent(), forFile -> {
             if (forFile.equals(file)) {
