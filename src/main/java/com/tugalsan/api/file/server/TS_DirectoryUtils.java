@@ -1,6 +1,5 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.executable.client.TGS_ExecutableType1;
 import java.io.*;
 import java.util.*;
 import java.nio.file.*;
@@ -8,77 +7,12 @@ import java.nio.file.attribute.*;
 import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
-import com.tugalsan.api.pack.client.TGS_Pack2;
 import com.tugalsan.api.stream.client.*;
-import com.tugalsan.api.thread.server.TS_ThreadRun;
-import com.tugalsan.api.time.client.TGS_Time;
 import com.tugalsan.api.unsafe.client.*;
-import java.util.stream.IntStream;
 
 public class TS_DirectoryUtils {
 
     final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
-
-    public static enum WatchTypes {
-        CREATE, MODIFY, DELETE
-    }
-
-    public static void watch(Path directory, TGS_ExecutableType1<Path> file, WatchTypes... types) {
-        if (!isExistDirectory(directory)){
-            d.ce("watch", "diretory not found", directory);
-        }
-        TS_ThreadRun.now(() -> {
-            TGS_UnSafe.execute(() -> {
-                WatchEvent.Kind<Path>[] kinds = new WatchEvent.Kind[types.length == 0 ? 3 : types.length];
-                if (types.length == 0) {
-                    kinds[0] = StandardWatchEventKinds.ENTRY_CREATE;
-                    kinds[1] = StandardWatchEventKinds.ENTRY_MODIFY;
-                    kinds[2] = StandardWatchEventKinds.ENTRY_DELETE;
-                } else {
-                    IntStream.range(0, types.length).forEachOrdered(i -> {
-                        if (types[i] == WatchTypes.CREATE) {
-                            kinds[i] = StandardWatchEventKinds.ENTRY_CREATE;
-                            return;
-                        }
-                        if (types[i] == WatchTypes.MODIFY) {
-                            kinds[i] = StandardWatchEventKinds.ENTRY_MODIFY;
-                            return;
-                        }
-                        if (types[i] == WatchTypes.DELETE) {
-                            kinds[i] = StandardWatchEventKinds.ENTRY_DELETE;
-                            return;
-                        }
-                    });
-                }
-                try ( var watchService = FileSystems.getDefault().newWatchService()) {
-                    directory.register(watchService, kinds);
-                    while (true) {
-                        var key = watchService.take();
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            var detectedFile = (Path) event.context();
-                            if (watchBuffer.isEmpty() || !detectedFile.equals(watchBuffer.value1)) {
-                                watchBuffer.value0 = TGS_Time.of();
-                                watchBuffer.value1 = detectedFile;
-                                file.execute(detectedFile);
-                                d.ci("watchModify", "new", watchBuffer.value1);
-                                continue;
-                            }
-                            var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
-                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(watchBuffer.value0)) {
-                                d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", watchBuffer.value0);
-                                continue;
-                            }
-                            watchBuffer.value0 = oneSecondAgo.incrementSecond(1);
-                            d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", watchBuffer.value0);
-                            file.execute(detectedFile);
-                        }
-                        key.reset();
-                    }
-                }
-            });
-        });
-    }
-    private static TGS_Pack2<TGS_Time, Path> watchBuffer = TGS_Pack2.of();
 
     public static String getName(Path path) {
         //EASY WAY

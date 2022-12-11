@@ -2,6 +2,8 @@ package com.tugalsan.api.file.server.watch;
 
 import com.tugalsan.api.executable.client.TGS_Executable;
 import com.tugalsan.api.executable.client.TGS_ExecutableType1;
+import com.tugalsan.api.file.server.TS_FileWatchUtils;
+import com.tugalsan.api.file.server.TS_FileWatchUtils.Types;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.nio.file.*;
@@ -11,7 +13,6 @@ import java.nio.file.attribute.*;
 import java.io.*;
 import java.util.*;
 
-@Deprecated //TOO COMPLICATED
 public class TS_DirectoryWatchDriver {
 
     public static TS_Log d = TS_Log.of(TS_DirectoryWatchDriver.class);
@@ -24,8 +25,8 @@ public class TS_DirectoryWatchDriver {
         return (WatchEvent<T>) event;
     }
 
-    private void register(Path dir) throws IOException {
-        var key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+    private void register(Path dir, Types... types) throws IOException {
+        var key = dir.register(watcher, TS_FileWatchUtils.cast(types));
         if (d.infoEnable) {
             var prev = keys.get(key);
             if (prev == null) {
@@ -39,17 +40,17 @@ public class TS_DirectoryWatchDriver {
         keys.put(key, dir);
     }
 
-    private void registerAll(Path start) throws IOException {
+    private void registerAll(Path start, Types... types) throws IOException {
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                register(dir);
+                register(dir, types);
                 return FileVisitResult.CONTINUE;
             }
         });
     }
 
-    private TS_DirectoryWatchDriver(Path dir, TGS_ExecutableType1<Path> forFile, boolean recursive) throws IOException {
+    private TS_DirectoryWatchDriver(Path dir, TGS_ExecutableType1<Path> forFile, boolean recursive, TS_FileWatchUtils.Types... types) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap();
         this.recursive = recursive;
@@ -64,14 +65,14 @@ public class TS_DirectoryWatchDriver {
         processEvents(forFile);
     }
 
-    public static TS_DirectoryWatchDriver of(Path dir, TGS_ExecutableType1<Path> forFile) {
-        return TGS_UnSafe.compile(() -> new TS_DirectoryWatchDriver(dir, forFile, false));
+    public static TS_DirectoryWatchDriver of(Path dir, TGS_ExecutableType1<Path> forFile, TS_FileWatchUtils.Types... types) {
+        return TGS_UnSafe.compile(() -> new TS_DirectoryWatchDriver(dir, forFile, false, types));
     }
 
-    public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_ExecutableType1<Path> forFile) {
-        return TGS_UnSafe.compile(() -> new TS_DirectoryWatchDriver(dir, forFile, true));
+    public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_ExecutableType1<Path> forFile, TS_FileWatchUtils.Types... types) {
+        return TGS_UnSafe.compile(() -> new TS_DirectoryWatchDriver(dir, forFile, true, types));
     }
-    
+
     public static TS_DirectoryWatchDriver ofFile(Path file, TGS_Executable exe) {
         return TS_DirectoryWatchDriver.of(file.getParent(), forFile -> {
             if (forFile.equals(file)) {
@@ -103,9 +104,7 @@ public class TS_DirectoryWatchDriver {
                 WatchEvent<Path> ev = cast(event);
                 var name = ev.context();
                 var child = dir.resolve(name);
-                if (child.toFile().length() != 0L) {
-                    forFile.execute(child);
-                }
+                forFile.execute(child);
                 if (recursive && (kind == ENTRY_CREATE)) {
                     TGS_UnSafe.execute(() -> {
                         if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
