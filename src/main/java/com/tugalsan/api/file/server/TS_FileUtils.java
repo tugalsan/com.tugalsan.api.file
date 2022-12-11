@@ -9,10 +9,19 @@ import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.unsafe.client.*;
+import com.tugalsan.api.executable.client.*;
 
 public class TS_FileUtils {
 
     final private static TS_Log d = TS_Log.of(TS_FileUtils.class);
+
+    public static void watch(Path targetFile, TGS_Executable exe, TS_DirectoryUtils.WatchTypes... types) {
+        TS_DirectoryUtils.watch(targetFile.getParent(), file -> {
+            if (targetFile.equals(file)) {
+                exe.execute();
+            }
+        }, types);
+    }
 
     public static FileTime toFileTime(TGS_Time time) {
         return FileTime.fromMillis(time.toDateMillis());
