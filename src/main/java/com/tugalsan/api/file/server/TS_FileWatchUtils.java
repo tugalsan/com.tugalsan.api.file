@@ -22,8 +22,8 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static void file(Path targetFile, TGS_Executable exe, Types... types) {
-        directory(targetFile.getParent(), file -> {
+    public static boolean file(Path targetFile, TGS_Executable exe, Types... types) {
+        return directory(targetFile.getParent(), file -> {
             if (targetFile.equals(file)) {
                 exe.execute();
             }
@@ -56,13 +56,19 @@ public class TS_FileWatchUtils {
     }
 
     @Deprecated //Not working well
-    public static void directoryRecursive(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
-        TS_DirectoryWatchDriver.ofRecursive(directory, file, types);
-    }
-
-    public static void directory(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
+    public static boolean directoryRecursive(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ce("watch", "diretory not found", directory);
+            return false;
+        }
+        TS_DirectoryWatchDriver.ofRecursive(directory, file, types);
+        return true;
+    }
+
+    public static boolean directory(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
+        if (!TS_DirectoryUtils.isExistDirectory(directory)) {
+            d.ce("watch", "diretory not found", directory);
+            return false;
         }
         TS_ThreadRun.now(() -> {
             TGS_UnSafe.execute(() -> {
@@ -93,6 +99,7 @@ public class TS_FileWatchUtils {
                 }
             });
         });
+        return true;
     }
     private static TGS_Pack2<TGS_Time, Path> directoryBuffer = TGS_Pack2.of();
 }
