@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 
 public class TS_FileWatchUtils {
 
-    final private static TS_Log d = TS_Log.of(true, TS_FileWatchUtils.class);
+    final private static TS_Log d = TS_Log.of(TS_FileWatchUtils.class);
 
     public static enum Types {
         CREATE, MODIFY, DELETE
@@ -29,7 +29,7 @@ public class TS_FileWatchUtils {
                 d.ci("file", "filenames same", targetFile, filename);
                 exe.execute();
             } else {
-                d.ci("file", "filenames not same", targetFile, filename);
+                d.ce("file", "INFO:skipped", "filenames not same", targetFile, filename);
             }
         }, types);
     }
@@ -86,19 +86,19 @@ public class TS_FileWatchUtils {
                                 directoryBuffer.value0 = TGS_Time.of();
                                 directoryBuffer.value1 = detectedFile;
                                 filename.execute(TS_FileUtils.getNameFull(detectedFile));
-                                d.ci("watchModify", "new", directoryBuffer.value1);
+                                d.ci("directory", "new", directoryBuffer.value1);
                                 continue;
                             }
                             var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
                             {//SKIP IF DOUBLE NOTIFY
                                 if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
-                                    d.ci("watchModify", "hasSmallerTimeThanOrEqual", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                                    d.ci("directory", "skipped", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
                                     continue;
                                 }
                             }
                             {//NOTIFY
                                 directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
-                                d.ci("watchModify", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                                d.ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
                                 filename.execute(TS_FileUtils.getNameFull(detectedFile));
                             }
                         }
