@@ -48,19 +48,19 @@ public class TS_DirectoryUtils {
             var subFiles = subFiles(subDir, null, false, true);
             d.ci("flattenDirectory", "subFiles.size()", subFiles.size());
             (parallel ? subFiles.parallelStream() : subFiles.stream()).forEach(subFile -> {
-                TS_FileUtils.moveToFolder(subFile, sourceFolder);
+                TS_FileUtils.moveToFolder(subFile, sourceFolder, true);
             });
             TS_DirectoryUtils.deleteDirectoryIfExists(subDir);
         });
     }
 
-    public static Path moveDirectory(Path sourceFolder, Path asDestFolder, boolean parallel) {
+    public static Path moveDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel) {
         if (Objects.equals(sourceFolder.toAbsolutePath().toString(), asDestFolder.toAbsolutePath().toString())) {
             return asDestFolder;
         }
 
         if (!isExistDirectory(asDestFolder) || isEmptyDirectory(asDestFolder)) {
-            TS_FileUtils.moveAsFile(sourceFolder, asDestFolder);
+            TS_FileUtils.moveAs(sourceFolder, asDestFolder, overwrite);
             return asDestFolder;
         }
 
@@ -80,7 +80,7 @@ public class TS_DirectoryUtils {
             d.ci("strDestFile", strDestFile);
             var strDestFolder = Path.of(strDestFile).getParent();
             d.ci("strDestFolder", strDestFolder);
-            TS_FileUtils.moveToFolder(Path.of(strSubFile), strDestFolder);
+            TS_FileUtils.moveToFolder(Path.of(strSubFile), strDestFolder, overwrite);
         });
 
         return asDestFolder;
@@ -105,7 +105,7 @@ public class TS_DirectoryUtils {
         (parallel ? subFiles.parallelStream() : subFiles.stream()).forEach(srcFile -> {
             var dstFile = Path.of(dstFilePrefix, srcFile.getFileName().toString());
             d.cr("copyFiles.f", srcFile, dstFile, overwrite);
-            TS_FileUtils.copyFile(srcFile, dstFile, overwrite);
+            TS_FileUtils.copyAs(srcFile, dstFile, overwrite);
         });
     }
 

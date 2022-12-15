@@ -183,46 +183,55 @@ public class TS_FileUtils {
         return fullName.substring(i + 1);
     }
 
-    public static Path moveAsFile(Path sourceFile, Path asDestFile) {
+    public static Path moveAs(Path sourceFile, Path asDestFile, boolean overwrite) {
         return TGS_UnSafe.compile(() -> {
-            d.ci("moveAsFile", "sourceFile", sourceFile, "asDestFile", asDestFile);
+            d.ci("moveAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
                 return asDestFile;
             }
             TS_DirectoryUtils.createDirectoriesIfNotExists(asDestFile.getParent());
-            deleteFileIfExists(asDestFile);
-            Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING);
+            if (!overwrite && isExistFile(asDestFile)) {
+                return null;
+            }
+            TGS_UnSafe.execute(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("moveAs", e));
             return asDestFile;
         });
     }
 
-    public static Path moveToFolder(Path sourceFile, Path destFolder) {
+    public static Path moveToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
         d.ci("moveToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
         var asDestFile = destFolder.resolve(sourceFile.getFileName());
-        moveAsFile(sourceFile, asDestFile);
-        return asDestFile;
+        return moveAs(sourceFile, asDestFile, overwrite);
     }
 
-    public static Path copyFile(Path source, Path dest, boolean overwrite) {
+    public static Path copyToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
+        d.ci("copyToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
+        var asDestFile = destFolder.resolve(sourceFile.getFileName());
+        return copyAs(sourceFile, asDestFile, overwrite);
+    }
+
+    public static Path copyAs(Path sourceFile, Path asDestFile, boolean overwrite) {
         return TGS_UnSafe.compile(() -> {
-            if (!isExistFile(dest)) {
-                TGS_UnSafe.execute(() -> {
-                    Files.copy(source, dest);
-                }, e -> TGS_UnSafe.doNothing());
-                return dest;
+            d.ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
+            if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
+                return asDestFile;
             }
-            if (overwrite) {
-                deleteFileIfExists(dest);
-                Files.copy(source, dest);
+            TS_DirectoryUtils.createDirectoriesIfNotExists(asDestFile.getParent());
+            if (!overwrite && isExistFile(asDestFile)) {
+                return null;
             }
-            return dest;
+            TGS_UnSafe.execute(() -> Files.copy(sourceFile, asDestFile), e -> d.ce("copyAs", e));
+            if (!isExistFile(asDestFile)) {
+                return null;
+            }
+            return asDestFile;
         });
     }
 
-    public static Path copyFileAssure(Path source, Path dest, boolean overwrite) {
-        var path = copyFile(source, dest, overwrite);
+    public static Path copyAsAssure(Path source, Path dest, boolean overwrite) {
+        var path = copyAs(source, dest, overwrite);
         if (!isExistFile(dest)) {
-            TGS_UnSafe.catchMeIfUCan(d.className, "copyFileAssure", "!isExistFile(dest):" + dest);
+            TGS_UnSafe.catchMeIfUCan(d.className, "copyAsAssure", "!isExistFile(dest):" + dest);
         }
         return path;
     }
@@ -236,7 +245,7 @@ public class TS_FileUtils {
     }
 
     public static Path rename(Path source, CharSequence newFileName) {
-        return moveAsFile(source, source.resolveSibling(newFileName.toString()));
+        return moveAs(source, source.resolveSibling(newFileName.toString()), false);
     }
 
     public static Path imitateNameType(Path src, String newType) {
