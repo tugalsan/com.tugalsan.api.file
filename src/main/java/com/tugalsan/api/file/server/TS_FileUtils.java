@@ -129,7 +129,7 @@ public class TS_FileUtils {
                 return true;
             }
             Files.deleteIfExists(file);
-            return isExistFile(file);
+            return !isExistFile(file);
         }, exception -> {
             if (printStackTrace) {
                 exception.printStackTrace();
