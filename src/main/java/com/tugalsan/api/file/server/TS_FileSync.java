@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 @Deprecated //NOT TESTET WHATSOEVER
 public class TS_FileSync {
@@ -65,7 +66,7 @@ public class TS_FileSync {
             return;
         }
         try {
-            if (TS_FileUtils.getChecksumLng(file.toPath()).get() == TS_FileUtils.getChecksumLng(toFile.toPath()).get()) {
+            if (Objects.equals(TS_FileUtils.getChecksumLng(file.toPath()).get(), TS_FileUtils.getChecksumLng(toFile.toPath()).get())) {
                 return;
             }
         } catch (Exception e) {
