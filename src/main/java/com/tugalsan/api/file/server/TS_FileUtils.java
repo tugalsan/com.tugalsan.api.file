@@ -9,6 +9,10 @@ import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.unsafe.client.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
 
 public class TS_FileUtils {
 
@@ -236,12 +240,24 @@ public class TS_FileUtils {
         return path;
     }
 
-    public static String getChecksumHex(Path file) {
+    @SuppressWarnings("empty-statement")
+    public static Optional<Long> getChecksumLng(Path file) {
+        try ( var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
+            byte[] buffer = new byte[1024];
+            while (in.read(buffer) >= 0)
+			;
+            return Optional.of(in.getChecksum().getValue());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<String> getChecksumHex(Path file) {
         return TGS_UnSafe.compile(() -> {
             var bytes = Files.readAllBytes(file);
             var hash = MessageDigest.getInstance("MD5").digest(bytes);
-            return DatatypeConverter.printHexBinary(hash);
-        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
+            return Optional.of(DatatypeConverter.printHexBinary(hash));
+        }, e -> Optional.empty());//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static Path rename(Path source, CharSequence newFileName) {
