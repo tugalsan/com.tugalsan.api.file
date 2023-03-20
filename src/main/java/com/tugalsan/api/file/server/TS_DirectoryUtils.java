@@ -180,7 +180,7 @@ public class TS_DirectoryUtils {
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
                     return TGS_UnSafe.compile(() -> {
                         d.ci("postVisitDirectory", dir);
-                        if (dir.toAbsolutePath().toString().equalsIgnoreCase(pathStr)) {
+                        if (TGS_CharSetCast.equalsLocaleIgnoreCase(dir.toAbsolutePath().toString(), pathStr)) {
                             return FileVisitResult.CONTINUE;
                         }
                         Files.delete(dir);
