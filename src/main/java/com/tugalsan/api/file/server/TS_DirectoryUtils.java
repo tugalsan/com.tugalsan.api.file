@@ -1,5 +1,6 @@
 package com.tugalsan.api.file.server;
 
+import com.tugalsan.api.charset.client.TGS_CharSetCast;
 import java.io.*;
 import java.util.*;
 import java.nio.file.*;
@@ -141,7 +142,7 @@ public class TS_DirectoryUtils {
     public static boolean deleteDirectoryIfExists(Path path, boolean dontDeleteSelfDirectory) {
         return TGS_UnSafe.compile(() -> {
             if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
-                try ( var entries = Files.newDirectoryStream(path)) {
+                try (var entries = Files.newDirectoryStream(path)) {
                     for (var entry : entries) {
                         deleteDirectoryIfExists(entry, false);
                     }
@@ -238,7 +239,7 @@ public class TS_DirectoryUtils {
                 return !r.isPresent();
             }
             assureExists(directory);
-            try ( var dirStream = Files.newDirectoryStream(directory)) {
+            try (var dirStream = Files.newDirectoryStream(directory)) {
                 return !dirStream.iterator().hasNext();
             }
         });
@@ -305,19 +306,19 @@ public class TS_DirectoryUtils {
             } else {
                 var fileNameMatcherStr = fileNameMatcher.toString();
                 var matcher = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr);//"glob:*.java" or glob:**/*.java;
-                var matcherUP = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr.toUpperCase(Locale.ROOT));//"glob:*.java" or glob:**/*.java;
-                var matcherUP2 = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr.toUpperCase());//"glob:*.java" or glob:**/*.java;
-                var matcherDW = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr.toLowerCase(Locale.ROOT));//"glob:*.java" or glob:**/*.java;
-                var matcherDW2 = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr.toLowerCase());//"glob:*.java" or glob:**/*.java;
+                var matcherUP = FileSystems.getDefault().getPathMatcher("glob:**/" + TGS_CharSetCast.toLocaleUpperCase(fileNameMatcherStr));//"glob:*.java" or glob:**/*.java;
+                var matcherDW = FileSystems.getDefault().getPathMatcher("glob:**/" + TGS_CharSetCast.toLocaleUpperCase(fileNameMatcherStr));//"glob:*.java" or glob:**/*.java;
                 if (recursive) {
                     subFiles = TGS_StreamUtils.toLst(
                             Files.walk(parentDirectory)
-                                    .filter(p -> !Files.isDirectory(p) && (matcher.matches(p) || matcherUP.matches(p) || matcherDW.matches(p) || matcherUP2.matches(p) || matcherDW2.matches(p))).map(p -> p.toString())
+                                    .filter(p -> !Files.isDirectory(p) && (matcher.matches(p) || matcherUP.matches(p) || matcherDW.matches(p)))
+                                    .map(p -> p.toString())
                     );
                 } else {
                     subFiles = TGS_StreamUtils.toLst(
                             Files.list(parentDirectory)
-                                    .filter(p -> !Files.isDirectory(p) && (matcher.matches(p) || matcherUP.matches(p) || matcherDW.matches(p) || matcherUP2.matches(p) || matcherDW2.matches(p))).map(p -> p.toString())
+                                    .filter(p -> !Files.isDirectory(p) && (matcher.matches(p) || matcherUP.matches(p) || matcherDW.matches(p)))
+                                    .map(p -> p.toString())
                     );
                 }
             }
