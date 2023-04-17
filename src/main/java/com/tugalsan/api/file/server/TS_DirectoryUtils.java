@@ -140,7 +140,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean deleteDirectoryIfExists(Path path, boolean dontDeleteSelfDirectory) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
                 try (var entries = Files.newDirectoryStream(path)) {
                     for (var entry : entries) {
@@ -160,7 +160,7 @@ public class TS_DirectoryUtils {
 
     @Deprecated//MAY NOT BE WORKING ON WINDOWS SERVER 2008 R2
     public static void deleteDirectoryIfExists2(Path path, boolean dontDeleteSelfDirectory) {
-        TGS_UnSafe.execute(() -> {
+        TGS_UnSafe.run(() -> {
             if (!isExistDirectory(path)) {
                 return;
             }
@@ -169,7 +169,7 @@ public class TS_DirectoryUtils {
 
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                    return TGS_UnSafe.compile(() -> {
+                    return TGS_UnSafe.call(() -> {
                         d.ci("visitFile", file);
                         Files.delete(file);
                         return FileVisitResult.CONTINUE;
@@ -178,7 +178,7 @@ public class TS_DirectoryUtils {
 
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                    return TGS_UnSafe.compile(() -> {
+                    return TGS_UnSafe.call(() -> {
                         d.ci("postVisitDirectory", dir);
                         if (TGS_CharSetCast.equalsLocaleIgnoreCase(dir.toAbsolutePath().toString(), pathStr)) {
                             return FileVisitResult.CONTINUE;
@@ -197,7 +197,7 @@ public class TS_DirectoryUtils {
     public static Path assureExists(Path path) {
         TS_DirectoryUtils.createDirectoriesIfNotExists(path);
         if (!TS_DirectoryUtils.isExistDirectory(path)) {
-            TGS_UnSafe.catchMeIfUCan(d.className, "assureExists", "!TS_DirectoryUtils.isExistDirectory(path)");
+            TGS_UnSafe.thrw(d.className, "assureExists", "!TS_DirectoryUtils.isExistDirectory(path)");
         }
         return path;
     }
@@ -207,7 +207,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean createDirectoriesIfNotExists(Path directory) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             if (!isExistDirectory(directory)) {
                 directory.toFile().mkdirs();
                 //return Files.createDirectories(directory);//BUGGY
@@ -224,7 +224,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean isEmptyDirectory(Path directory, boolean recursive, boolean parallel) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             if (recursive) {
                 if (!isExistDirectory(directory)) {
                     return false;
@@ -250,7 +250,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean deleteDirectoryIfExistsIfEmpty(Path directory, boolean recursive) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             if (recursive) {
                 if (!isEmptyDirectory(directory, true, false)) {
                     return false;
@@ -288,7 +288,7 @@ public class TS_DirectoryUtils {
 
     //DONT TOUCH: ARRAYLIST<PATH> DOES NOT WORKING, DONT KNOW WHY!!
     public static List<String> subFiles2(Path parentDirectory, CharSequence fileNameMatcher, boolean sorted, boolean recursive) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             assureExists(parentDirectory);
             List<String> subFiles;
             if (fileNameMatcher == null) {
@@ -338,7 +338,7 @@ public class TS_DirectoryUtils {
     }
 
     public static List<Path> subDirectories(Path parentDirectory, boolean sorted, boolean recursive) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             assureExists(parentDirectory);
             List<Path> subDirectories;
             if (recursive) {

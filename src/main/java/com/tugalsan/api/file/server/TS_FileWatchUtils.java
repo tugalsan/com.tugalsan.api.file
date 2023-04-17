@@ -1,7 +1,7 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.executable.client.TGS_Executable;
-import com.tugalsan.api.executable.client.TGS_ExecutableType1;
+import com.tugalsan.api.runnable.client.TGS_Runnable;
+import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.pack.client.TGS_Pack2;
@@ -22,12 +22,12 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(Path targetFile, TGS_Executable exe, Types... types) {
+    public static boolean file(Path targetFile, TGS_Runnable exe, Types... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         return directory(targetFile.getParent(), filename -> {
             if (targetFileName.equals(filename)) {
                 d.ci("file", "filenames same", targetFile, filename);
-                exe.execute();
+                exe.run();
             } else {
                 d.ce("file", "INFO:skipped", "filenames not same", targetFile, filename);
             }
@@ -60,7 +60,7 @@ public class TS_FileWatchUtils {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static boolean directoryRecursive(Path directory, TGS_ExecutableType1<Path> file, Types... types) {
+    public static boolean directoryRecursive(Path directory, TGS_RunnableType1<Path> file, Types... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
@@ -69,13 +69,13 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(Path directory, TGS_ExecutableType1<String> filename, Types... types) {
+    public static boolean directory(Path directory, TGS_RunnableType1<String> filename, Types... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
         }
         TS_ThreadRun.now(() -> {
-            TGS_UnSafe.execute(() -> {
+            TGS_UnSafe.run(() -> {
                 try ( var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
                     while (true) {
@@ -85,7 +85,7 @@ public class TS_FileWatchUtils {
                             if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {//IF INIT
                                 directoryBuffer.value0 = TGS_Time.of();
                                 directoryBuffer.value1 = detectedFile;
-                                filename.execute(TS_FileUtils.getNameFull(detectedFile));
+                                filename.run(TS_FileUtils.getNameFull(detectedFile));
                                 d.ci("directory", "new", directoryBuffer.value1);
                                 continue;
                             }
@@ -99,7 +99,7 @@ public class TS_FileWatchUtils {
                             {//NOTIFY
                                 directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
                                 d.ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
-                                filename.execute(TS_FileUtils.getNameFull(detectedFile));
+                                filename.run(TS_FileUtils.getNameFull(detectedFile));
                             }
                         }
                         key.reset();

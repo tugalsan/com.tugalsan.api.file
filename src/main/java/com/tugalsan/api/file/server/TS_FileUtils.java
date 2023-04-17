@@ -27,32 +27,32 @@ public class TS_FileUtils {
     }
 
     public static long getFileSizeInBytes(Path file) {
-        return TGS_UnSafe.compile(() -> Files.size(file));
+        return TGS_UnSafe.call(() -> Files.size(file));
     }
 
     public static Path setTimeLastModified(Path path, TGS_Time time) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             Files.setAttribute(path, "lastModifiedTime", toFileTime(time));
             return path;
         });
     }
 
     public static Path setTimeAccessTime(Path path, TGS_Time time) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             Files.setAttribute(path, "lastAccessTime", toFileTime(time));
             return path;
         });
     }
 
     public static Path setTimeCreationTime(Path path, TGS_Time time) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             Files.setAttribute(path, "creationTime", toFileTime(time));
             return path;
         });
     }
 
     public static TGS_Time getTimeLastModified(Path path) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             return TGS_Time.ofMillis(
                     Files
                             .readAttributes(path, BasicFileAttributes.class)
@@ -63,7 +63,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_Time getTimeLastAccessTime(Path path) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             return TGS_Time.of(
                     new Date(
                             Files
@@ -76,7 +76,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_Time getTimeCreationTime(Path path) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             return TGS_Time.of(
                     new Date(
                             Files
@@ -89,11 +89,11 @@ public class TS_FileUtils {
     }
 
     public static byte[] read(Path source) {
-        return TGS_UnSafe.compile(() -> Files.readAllBytes(source));
+        return TGS_UnSafe.call(() -> Files.readAllBytes(source));
     }
 
     public static Path write(byte[] source, Path dest, boolean append) {
-        return TGS_UnSafe.compile(() -> Files.write(dest, source, StandardOpenOption.CREATE, append ? StandardOpenOption.APPEND : StandardOpenOption.WRITE));
+        return TGS_UnSafe.call(() -> Files.write(dest, source, StandardOpenOption.CREATE, append ? StandardOpenOption.APPEND : StandardOpenOption.WRITE));
     }
 
     public static boolean isFileReadable(Path file) {
@@ -109,7 +109,7 @@ public class TS_FileUtils {
     }
 
     public static boolean createFile(Path file) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             TS_DirectoryUtils.createDirectoriesIfNotExists(file.getParent());
             Files.createFile(file);
             return true;
@@ -128,7 +128,7 @@ public class TS_FileUtils {
     }
 
     public static boolean deleteFileIfExists(Path file, boolean printStackTrace) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             if (!isExistFile(file)) {
                 return true;
             }
@@ -188,7 +188,7 @@ public class TS_FileUtils {
     }
 
     public static Path moveAs(Path sourceFile, Path asDestFile, boolean overwrite) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             d.ci("moveAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
                 return asDestFile;
@@ -197,7 +197,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_UnSafe.execute(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("moveAs", e));
+            TGS_UnSafe.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("moveAs", e));
             return asDestFile;
         });
     }
@@ -215,7 +215,7 @@ public class TS_FileUtils {
     }
 
     public static Path copyAs(Path sourceFile, Path asDestFile, boolean overwrite) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             d.ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
                 return asDestFile;
@@ -224,7 +224,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_UnSafe.execute(() -> Files.copy(sourceFile, asDestFile), e -> d.ce("copyAs", e));
+            TGS_UnSafe.run(() -> Files.copy(sourceFile, asDestFile), e -> d.ce("copyAs", e));
             if (!isExistFile(asDestFile)) {
                 return null;
             }
@@ -235,7 +235,7 @@ public class TS_FileUtils {
     public static Path copyAsAssure(Path source, Path dest, boolean overwrite) {
         var path = copyAs(source, dest, overwrite);
         if (!isExistFile(dest)) {
-            TGS_UnSafe.catchMeIfUCan(d.className, "copyAsAssure", "!isExistFile(dest):" + dest);
+            TGS_UnSafe.thrw(d.className, "copyAsAssure", "!isExistFile(dest):" + dest);
         }
         return path;
     }
@@ -253,7 +253,7 @@ public class TS_FileUtils {
     }
 
     public static Optional<String> getChecksumHex(Path file) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             var bytes = Files.readAllBytes(file);
             var hash = MessageDigest.getInstance("MD5").digest(bytes);
             return Optional.of(DatatypeConverter.printHexBinary(hash));

@@ -37,12 +37,12 @@ public class TS_PathUtils {
     }
 
     public static TGS_Pack2<Path, Exception> toPathOrError(CharSequence fileOrDirectory) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
             if (isURL && !TGS_CharSetCast.toLocaleLowerCase(path).startsWith("file:")) {
                 d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
-                return new TGS_Pack2(null, TGS_UnSafe.createException(d.className, "toPathAndError",
+                return new TGS_Pack2(null, TGS_UnSafe.toRuntimeException(d.className, "toPathAndError",
                         "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
                 ));
             }
@@ -54,7 +54,7 @@ public class TS_PathUtils {
     }
 
     public static Path toPath(Class c) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             var url = c.getProtectionDomain().getCodeSource().getLocation();
             return Path.of(url.toURI());
         });
@@ -69,7 +69,7 @@ public class TS_PathUtils {
     }
 
     public static String substract(String from_childFullPath, String to_parentPath) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             return from_childFullPath.substring(to_parentPath.length() + 1);
         }, exception -> {
             return null;

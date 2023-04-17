@@ -8,14 +8,14 @@ import java.util.*;
 public class TS_RootUtils {
 
     public static long getUsableSpaceInBytes(Path root) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             var store = Files.getFileStore(root);
             return store.getUsableSpace();
         });
     }
 
     public static long getTotalSpaceInBytes(Path root) {
-        return TGS_UnSafe.compile(() -> {
+        return TGS_UnSafe.call(() -> {
             var store = Files.getFileStore(root);
             return store.getTotalSpace();
         });
