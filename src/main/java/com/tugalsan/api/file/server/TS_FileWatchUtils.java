@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
 
 public class TS_FileWatchUtils {
 
-    final private static TS_Log d = TS_Log.of(TS_FileWatchUtils.class);
+    final public static TS_Log d = TS_Log.of(TS_FileWatchUtils.class);
 
     public static enum Types {
         CREATE, MODIFY, DELETE
@@ -29,7 +29,7 @@ public class TS_FileWatchUtils {
                 d.ci("file", "filenames same", targetFile, filename);
                 exe.run();
             } else {
-                d.ce("file", "INFO:skipped", "filenames not same", targetFile, filename);
+                d.ci("file", "INFO:skipped", "filenames not same", targetFile, filename);
             }
         }, types);
     }
@@ -76,7 +76,7 @@ public class TS_FileWatchUtils {
         }
         TS_ThreadRun.now(() -> {
             TGS_UnSafe.run(() -> {
-                try ( var watchService = FileSystems.getDefault().newWatchService()) {
+                try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
                     while (true) {
                         var key = watchService.take();
