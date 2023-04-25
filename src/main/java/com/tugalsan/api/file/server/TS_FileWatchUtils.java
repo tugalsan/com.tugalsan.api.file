@@ -18,11 +18,11 @@ public class TS_FileWatchUtils {
 
     final public static TS_Log d = TS_Log.of(TS_FileWatchUtils.class);
 
-    public static enum Types {
+    public static enum Triggers {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(Path targetFile, TGS_Runnable exe, Types... types) {
+    public static boolean file(Path targetFile, TGS_Runnable exe, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         return directory(targetFile.getParent(), filename -> {
             if (targetFileName.equals(filename)) {
@@ -34,7 +34,7 @@ public class TS_FileWatchUtils {
         }, types);
     }
 
-    public static WatchEvent.Kind<Path>[] cast(Types... types) {
+    public static WatchEvent.Kind<Path>[] cast(Triggers... types) {
         WatchEvent.Kind<Path>[] kinds = new WatchEvent.Kind[types.length == 0 ? 3 : types.length];
         if (types.length == 0) {
             kinds[0] = StandardWatchEventKinds.ENTRY_CREATE;
@@ -42,15 +42,15 @@ public class TS_FileWatchUtils {
             kinds[2] = StandardWatchEventKinds.ENTRY_DELETE;
         } else {
             IntStream.range(0, types.length).forEachOrdered(i -> {
-                if (types[i] == Types.CREATE) {
+                if (types[i] == Triggers.CREATE) {
                     kinds[i] = StandardWatchEventKinds.ENTRY_CREATE;
                     return;
                 }
-                if (types[i] == Types.MODIFY) {
+                if (types[i] == Triggers.MODIFY) {
                     kinds[i] = StandardWatchEventKinds.ENTRY_MODIFY;
                     return;
                 }
-                if (types[i] == Types.DELETE) {
+                if (types[i] == Triggers.DELETE) {
                     kinds[i] = StandardWatchEventKinds.ENTRY_DELETE;
                     return;
                 }
@@ -60,7 +60,7 @@ public class TS_FileWatchUtils {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static boolean directoryRecursive(Path directory, TGS_RunnableType1<Path> file, Types... types) {
+    public static boolean directoryRecursive(Path directory, TGS_RunnableType1<Path> file, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
@@ -69,7 +69,7 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(Path directory, TGS_RunnableType1<String> filename, Types... types) {
+    public static boolean directory(Path directory, TGS_RunnableType1<String> filename, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
