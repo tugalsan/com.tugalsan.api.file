@@ -9,8 +9,6 @@ import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.unsafe.client.*;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
@@ -53,37 +51,30 @@ public class TS_FileUtils {
 
     public static TGS_Time getTimeLastModified(Path path) {
         return TGS_UnSafe.call(() -> {
-            return TGS_Time.ofMillis(
-                    Files
-                            .readAttributes(path, BasicFileAttributes.class)
-                            .lastModifiedTime()
-                            .toMillis()
+            return TGS_Time.ofMillis(Files
+                    .readAttributes(path, BasicFileAttributes.class)
+                    .lastModifiedTime()
+                    .toMillis()
             );
         }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static TGS_Time getTimeLastAccessTime(Path path) {
         return TGS_UnSafe.call(() -> {
-            return TGS_Time.of(
-                    new Date(
-                            Files
-                                    .readAttributes(path, BasicFileAttributes.class)
-                                    .lastAccessTime()
-                                    .toMillis()
-                    )
+            return TGS_Time.ofMillis(Files
+                    .readAttributes(path, BasicFileAttributes.class)
+                    .lastAccessTime()
+                    .toMillis()
             );
         }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static TGS_Time getTimeCreationTime(Path path) {
         return TGS_UnSafe.call(() -> {
-            return TGS_Time.of(
-                    new Date(
-                            Files
-                                    .readAttributes(path, BasicFileAttributes.class)
-                                    .creationTime()
-                                    .toMillis()
-                    )
+            return TGS_Time.ofMillis(Files
+                    .readAttributes(path, BasicFileAttributes.class)
+                    .creationTime()
+                    .toMillis()
             );
         }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
@@ -242,7 +233,7 @@ public class TS_FileUtils {
 
     @SuppressWarnings("empty-statement")
     public static Optional<Long> getChecksumLng(Path file) {
-        try ( var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
+        try (var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
             byte[] buffer = new byte[1024];
             while (in.read(buffer) >= 0)
 			;
