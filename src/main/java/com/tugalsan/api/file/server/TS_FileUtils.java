@@ -98,6 +98,10 @@ public class TS_FileUtils {
     public static boolean isExistFile(Path file) {
         return file != null && !Files.isDirectory(file) && Files.exists(file);
     }
+    
+    public static boolean createFileIfNotExists(Path file) {
+        return isExistFile(file) || createFile(file);
+    }
 
     public static boolean createFile(Path file) {
         return TGS_UnSafe.call(() -> {
