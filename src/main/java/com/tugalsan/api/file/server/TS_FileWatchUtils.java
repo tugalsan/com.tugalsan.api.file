@@ -4,7 +4,7 @@ import com.tugalsan.api.runnable.client.TGS_Runnable;
 import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
-import com.tugalsan.api.pack.client.TGS_Pack2;
+import com.tugalsan.api.tuple.client.TGS_Tuple2;
 import com.tugalsan.api.thread.server.TS_ThreadRun;
 import com.tugalsan.api.time.client.TGS_Time;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
@@ -109,5 +109,5 @@ public class TS_FileWatchUtils {
         });
         return true;
     }
-    private static TGS_Pack2<TGS_Time, Path> directoryBuffer = TGS_Pack2.of();
+    private static TGS_Tuple2<TGS_Time, Path> directoryBuffer = TGS_Tuple2.of();
 }

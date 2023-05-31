@@ -1,7 +1,7 @@
 package com.tugalsan.api.file.client;
 
 import com.tugalsan.api.list.client.*;
-import com.tugalsan.api.pack.client.*;
+import com.tugalsan.api.tuple.client.*;
 import java.util.*;
 
 public class TGS_FileUtilsTur {
@@ -44,11 +44,11 @@ public class TGS_FileUtilsTur {
         return SAFE_DEFAULT_CHAR_AS_STR() + SAFE_DEFAULT_CHAR_AS_STR();
     }
 
-    public static List<TGS_Pack2<Character, Character>> SAFE_PAIRS() {
+    public static List<TGS_Tuple2<Character, Character>> SAFE_PAIRS() {
         return TGS_ListUtils.of(
-                new TGS_Pack2('ƒ', 's'),
-                new TGS_Pack2('{', '('), new TGS_Pack2('}', ')'),
-                new TGS_Pack2('[', '('), new TGS_Pack2(']', ')')
+                new TGS_Tuple2('ƒ', 's'),
+                new TGS_Tuple2('{', '('), new TGS_Tuple2('}', ')'),
+                new TGS_Tuple2('[', '('), new TGS_Tuple2(']', ')')
         );
     }
 }

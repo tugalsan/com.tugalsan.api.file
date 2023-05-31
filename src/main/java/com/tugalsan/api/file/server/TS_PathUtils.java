@@ -6,7 +6,7 @@ import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 import com.tugalsan.api.log.server.*;
-import com.tugalsan.api.pack.client.*;
+import com.tugalsan.api.tuple.client.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.unsafe.client.*;
 
@@ -36,20 +36,20 @@ public class TS_PathUtils {
         return path.getParent();
     }
 
-    public static TGS_Pack2<Path, Exception> toPathOrError(CharSequence fileOrDirectory) {
+    public static TGS_Tuple2<Path, Exception> toPathOrError(CharSequence fileOrDirectory) {
         return TGS_UnSafe.call(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
             if (isURL && !TGS_CharSetCast.toLocaleLowerCase(path).startsWith("file:")) {
                 d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
-                return new TGS_Pack2(null, TGS_UnSafe.toRuntimeException(d.className, "toPathAndError",
+                return new TGS_Tuple2(null, TGS_UnSafe.toRuntimeException(d.className, "toPathAndError",
                         "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
                 ));
             }
-            return new TGS_Pack2(isURL ? Path.of(new URL(path).toURI()) : Path.of(path), null);
+            return new TGS_Tuple2(isURL ? Path.of(new URL(path).toURI()) : Path.of(path), null);
         }, e -> {
             d.ci("toPathAndError", e);
-            return new TGS_Pack2(null, e);
+            return new TGS_Tuple2(null, e);
         });
     }
 

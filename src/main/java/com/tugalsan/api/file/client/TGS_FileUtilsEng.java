@@ -1,7 +1,7 @@
 package com.tugalsan.api.file.client;
 
 import com.tugalsan.api.list.client.*;
-import com.tugalsan.api.pack.client.*;
+import com.tugalsan.api.tuple.client.*;
 import java.util.*;
 
 @Deprecated
@@ -45,16 +45,16 @@ public class TGS_FileUtilsEng {
         return SAFE_DEFAULT_CHAR_AS_STR() + SAFE_DEFAULT_CHAR_AS_STR();
     }
 
-    public static List<TGS_Pack2<Character, Character>> SAFE_PAIRS() {
+    public static List<TGS_Tuple2<Character, Character>> SAFE_PAIRS() {
         return TGS_ListUtils.of(
-                new TGS_Pack2('İ', 'i'), new TGS_Pack2('ı', 'i'),
-                new TGS_Pack2('Ç', 'C'), new TGS_Pack2('ç', 'c'),
-                new TGS_Pack2('Ş', 'S'), new TGS_Pack2('ş', 's'), new TGS_Pack2('ƒ', 's'),
-                new TGS_Pack2('Ö', 'O'), new TGS_Pack2('ö', 'o'),
-                new TGS_Pack2('Ü', 'U'), new TGS_Pack2('ü', 'u'),
-                new TGS_Pack2('Ğ', 'G'), new TGS_Pack2('ğ', 'g'),
-                new TGS_Pack2('{', '('), new TGS_Pack2('}', ')'),
-                new TGS_Pack2('[', '('), new TGS_Pack2(']', ')')
+                new TGS_Tuple2('İ', 'i'), new TGS_Tuple2('ı', 'i'),
+                new TGS_Tuple2('Ç', 'C'), new TGS_Tuple2('ç', 'c'),
+                new TGS_Tuple2('Ş', 'S'), new TGS_Tuple2('ş', 's'), new TGS_Tuple2('ƒ', 's'),
+                new TGS_Tuple2('Ö', 'O'), new TGS_Tuple2('ö', 'o'),
+                new TGS_Tuple2('Ü', 'U'), new TGS_Tuple2('ü', 'u'),
+                new TGS_Tuple2('Ğ', 'G'), new TGS_Tuple2('ğ', 'g'),
+                new TGS_Tuple2('{', '('), new TGS_Tuple2('}', ')'),
+                new TGS_Tuple2('[', '('), new TGS_Tuple2(']', ')')
         );
     }
 }
