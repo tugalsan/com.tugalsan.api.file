@@ -5,7 +5,7 @@ import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.tuple.client.TGS_Tuple2;
-import com.tugalsan.api.thread.server.TS_ThreadRun;
+import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
 import com.tugalsan.api.time.client.TGS_Time;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.nio.file.FileSystems;
@@ -74,7 +74,7 @@ public class TS_FileWatchUtils {
             d.ci("watch", "diretory not found", directory);
             return false;
         }
-        TS_ThreadRun.now(() -> {
+        TS_ThreadAsync.now(() -> {
             TGS_UnSafe.run(() -> {
                 try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
