@@ -4,7 +4,7 @@ import com.tugalsan.api.runnable.client.TGS_Runnable;
 import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
-import com.tugalsan.api.thread.server.safe.TS_ThreadSafeTrigger;
+import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
 import com.tugalsan.api.tuple.client.TGS_Tuple2;
 import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
 import com.tugalsan.api.time.client.TGS_Time;
@@ -23,7 +23,7 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(TS_ThreadSafeTrigger killTrigger, Path targetFile, TGS_Runnable exe, Triggers... types) {
+    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_Runnable exe, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         return directory(killTrigger, targetFile.getParent(), filename -> {
             if (targetFileName.equals(filename)) {
@@ -70,7 +70,7 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(TS_ThreadSafeTrigger killTrigger, Path directory, TGS_RunnableType1<String> filename, Triggers... types) {
+    public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_RunnableType1<String> filename, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
