@@ -4,8 +4,9 @@ import com.tugalsan.api.runnable.client.TGS_Runnable;
 import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
+import com.tugalsan.api.thread.server.TS_ThreadKillTrigger;
 import com.tugalsan.api.tuple.client.TGS_Tuple2;
-import com.tugalsan.api.thread.server.struct.async.TS_ThreadAsync;
+import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
 import com.tugalsan.api.time.client.TGS_Time;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.nio.file.FileSystems;
@@ -22,9 +23,9 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(Path targetFile, TGS_Runnable exe, Triggers... types) {
+    public static boolean file(TS_ThreadKillTrigger killTrigger, Path targetFile, TGS_Runnable exe, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
-        return directory(targetFile.getParent(), filename -> {
+        return directory(killTrigger, targetFile.getParent(), filename -> {
             if (targetFileName.equals(filename)) {
                 d.ci("file", "filenames same", targetFile, filename);
                 exe.run();
@@ -69,16 +70,16 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(Path directory, TGS_RunnableType1<String> filename, Triggers... types) {
+    public static boolean directory(TS_ThreadKillTrigger killTrigger, Path directory, TGS_RunnableType1<String> filename, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
         }
-        TS_ThreadAsync.now(() -> {
+        TS_ThreadAsync.now(killTrigger, kt -> {
             TGS_UnSafe.run(() -> {
                 try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
-                    while (true) {
+                    while (kt.hasNotTriggered()) {
                         var key = watchService.take();
                         for (WatchEvent<?> event : key.pollEvents()) {
                             var detectedFile = (Path) event.context();
