@@ -98,7 +98,7 @@ public class TS_FileUtils {
     public static boolean isExistFile(Path file) {
         return file != null && !Files.isDirectory(file) && Files.exists(file);
     }
-    
+
     public static boolean createFileIfNotExists(Path file) {
         return isExistFile(file) || createFile(file);
     }
@@ -237,14 +237,16 @@ public class TS_FileUtils {
 
     @SuppressWarnings("empty-statement")
     public static Optional<Long> getChecksumLng(Path file) {
-        try (var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
-            byte[] buffer = new byte[1024];
-            while (in.read(buffer) >= 0)
+        return TGS_UnSafe.call(() -> {
+            try (var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
+                var bytes = new byte[1024];
+                while (in.read(bytes) >= 0)
 			;
-            return Optional.of(in.getChecksum().getValue());
-        } catch (Exception e) {
+                return Optional.of(in.getChecksum().getValue());
+            }
+        }, e -> {
             return Optional.empty();
-        }
+        });
     }
 
     public static Optional<String> getChecksumHex(Path file) {

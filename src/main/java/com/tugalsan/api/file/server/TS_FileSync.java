@@ -1,10 +1,10 @@
 package com.tugalsan.api.file.server;
 
+import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Objects;
 
 @Deprecated //NOT TESTET WHATSOEVER
@@ -16,11 +16,11 @@ public class TS_FileSync {
     }
 
     public static void clean(String fromPath, String toPath) throws Exception {
-        File fromFile = new File(fromPath);
-        File toFile = new File(toPath);
-        for (File file : fromFile.listFiles()) {
-            String relativePath = file.getAbsolutePath().substring(fromFile.getAbsolutePath().length());
-            File destFile = new File(toFile.getAbsolutePath() + relativePath);
+        var fromFile = new File(fromPath);
+        var toFile = new File(toPath);
+        for (var file : fromFile.listFiles()) {
+            var relativePath = file.getAbsolutePath().substring(fromFile.getAbsolutePath().length());
+            var destFile = new File(toFile.getAbsolutePath() + relativePath);
             if (file.isFile()) {
                 cleanFile(file, destFile);
             } else {
@@ -44,43 +44,43 @@ public class TS_FileSync {
         }
     }
 
-    public static void sync(String fromPath, String toPath) throws Exception {
-        File fromFile = new File(fromPath);
-        File toFile = new File(toPath);
-        for (File file : fromFile.listFiles()) {
-            String relativePath = file.getAbsolutePath().substring(fromFile.getAbsolutePath().length());
-            File destFile = new File(toFile.getAbsolutePath() + relativePath);
+    public static boolean sync(String fromPath, String toPath) {
+        var fromFile = new File(fromPath);
+        var toFile = new File(toPath);
+        var success = true;
+        for (var file : fromFile.listFiles()) {
+            var relativePath = file.getAbsolutePath().substring(fromFile.getAbsolutePath().length());
+            var destFile = new File(toFile.getAbsolutePath() + relativePath);
             if (file.isFile()) {
-                syncFile(file, destFile);
+                success = success && syncFile(file, destFile);
             } else {
                 if (!file.getName().startsWith(".")) {
                     destFile.mkdirs();
-                    sync(file.getAbsolutePath(), destFile.getAbsolutePath());
+                    success = success && sync(file.getAbsolutePath(), destFile.getAbsolutePath());
                 }
             }
         }
+        return success;
     }
 
-    private static void syncFile(File file, File toFile) throws Exception {
-        if (file.getName().startsWith(".")) {
-            return;
-        }
-        try {
-            if (Objects.equals(TS_FileUtils.getChecksumLng(file.toPath()).get(), TS_FileUtils.getChecksumLng(toFile.toPath()).get())) {
-                return;
+    private static boolean syncFile(File file, File toFile) {
+        return TGS_UnSafe.call(() -> {
+            if (file.getName().startsWith(".")) {
+                return true;
             }
-        } catch (Exception e) {
-        }
-        System.out.println(file + " -- sync --> " + toFile);
-        InputStream in = new FileInputStream(file);
-        OutputStream out = new FileOutputStream(toFile);
-        byte[] buffer = new byte[1024];
-        int len = in.read(buffer);
-        while (len != -1) {
-            out.write(buffer, 0, len);
-            len = in.read(buffer);
-        }
-        in.close();
-        out.close();
+            if (Objects.equals(TS_FileUtils.getChecksumLng(file.toPath()).get(), TS_FileUtils.getChecksumLng(toFile.toPath()).get())) {
+                return true;
+            }
+            System.out.println(file + " -- sync --> " + toFile);
+            try (var in = new FileInputStream(file); var out = new FileOutputStream(toFile);) {
+                var buffer = new byte[1024];
+                var len = in.read(buffer);
+                while (len != -1) {
+                    out.write(buffer, 0, len);
+                    len = in.read(buffer);
+                }
+                return true;
+            }
+        }, e -> false);
     }
 }
