@@ -22,8 +22,18 @@ public class TS_PathUtils {
         return Path.of(System.getProperty("user.home"));
     }
 
+    //DONT TOUCH IT, I MAY USED IT BEFORE
+    @Deprecated
     public static Path getPathCurrent() {
         return Path.of(System.getProperty("user.dir"));
+    }
+
+    public static Path getPathCurrent_nio() {
+        return FileSystems.getDefault().getPath("").toAbsolutePath();
+    }
+
+    public static Path getPathCurrent_nio(String child, String... more) {
+        return FileSystems.getDefault().getPath(child, more).toAbsolutePath();
     }
 
     public static List<Path> toPaths(String list, String delimiter) {
