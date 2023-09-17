@@ -14,17 +14,6 @@ public class TS_PathUtils {
 
     final private static TS_Log d = TS_Log.of(TS_PathUtils.class);
 
-    public static Optional<String> getPath(Class clazz) {
-        return TGS_UnSafe.call(() -> {
-            return Optional.of(clazz
-                    .getProtectionDomain()
-                    .getCodeSource()
-                    .getLocation()
-                    .toURI()
-                    .getPath());
-        }, e -> Optional.empty());
-    }
-
     public static Path getPathHomeDesktop() {
         return getPathHome().resolve("Desktop");
     }
