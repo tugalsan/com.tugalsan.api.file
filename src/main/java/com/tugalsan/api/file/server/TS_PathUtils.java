@@ -63,6 +63,13 @@ public class TS_PathUtils {
         });
     }
 
+    public static Path of(String path) {
+        return TGS_UnSafe.call(() -> Path.of(path), e -> {
+            e.printStackTrace();
+            return null;
+        });
+    }
+
     public static Path toPath(Class c) {
         return TGS_UnSafe.call(() -> {
             var url = c.getProtectionDomain().getCodeSource().getLocation();
