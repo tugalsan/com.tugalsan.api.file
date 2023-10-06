@@ -8,6 +8,7 @@ import java.util.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.tuple.client.*;
 import com.tugalsan.api.stream.client.*;
+import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.unsafe.client.*;
 
 public class TS_PathUtils {
@@ -64,7 +65,12 @@ public class TS_PathUtils {
     }
 
     public static Path of(String path) {
-        return TGS_UnSafe.call(() -> Path.of(path), e -> {
+        return TGS_UnSafe.call(() -> {
+            if (TGS_StringUtils.isNullOrEmpty(path)) {
+                return null;
+            }
+            return Path.of(path);
+        }, e -> {
             e.printStackTrace();
             return null;
         });

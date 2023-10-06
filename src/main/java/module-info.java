@@ -10,6 +10,7 @@ module com.tugalsan.api.file {
     requires com.tugalsan.api.charset;
     requires com.tugalsan.api.os;
     requires com.tugalsan.api.stream;
+    requires com.tugalsan.api.string;
     requires com.tugalsan.api.time;
     exports com.tugalsan.api.file.client;
     exports com.tugalsan.api.file.server;
