@@ -10,6 +10,7 @@ import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.unsafe.client.*;
+import com.tugalsan.api.validator.client.TGS_ValidatorType1;
 
 public class TS_DirectoryUtils {
 
@@ -88,22 +89,36 @@ public class TS_DirectoryUtils {
     }
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel) {
+        copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, null);
+    }
+
+    public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel, TGS_ValidatorType1<Path> filter) {
         d.cr("copyDirectory.i", sourceFolder, asDestFolder, overwrite);
         var dstDirPrefix = asDestFolder.toAbsolutePath().toString();
         var subDirectories = subDirectories(sourceFolder, false, false);
         (parallel ? subDirectories.parallelStream() : subDirectories.stream()).forEach(srcDir -> {
             var dstSubDir = Path.of(dstDirPrefix, srcDir.getFileName().toString());
-            copyDirectory(srcDir, dstSubDir, overwrite, parallel);
+            copyDirectory(srcDir, dstSubDir, overwrite, parallel, filter);
         });
-        copyFiles(sourceFolder, asDestFolder, overwrite, parallel);
+        copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter);
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel) {
+        copyFiles(sourceFolder, destFolder, overwrite, parallel, null);
+    }
+
+    public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel, TGS_ValidatorType1<Path> filter) {
         d.cr("copyFiles.i", sourceFolder, destFolder, overwrite);
         createDirectoriesIfNotExists(destFolder);
         var dstFilePrefix = destFolder.toAbsolutePath().toString();
         var subFiles = subFiles(sourceFolder, null, false, false);
         (parallel ? subFiles.parallelStream() : subFiles.stream()).forEach(srcFile -> {
+            if (filter != null) {
+                var valid = filter.validate(srcFile);
+                if (!valid) {
+                    return;
+                }
+            }
             var dstFile = Path.of(dstFilePrefix, srcFile.getFileName().toString());
             d.cr("copyFiles.f", srcFile, dstFile, overwrite);
             TS_FileUtils.copyAs(srcFile, dstFile, overwrite);
