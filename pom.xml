@@ -125,7 +125,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>21</release><enablePreview>true</enablePreview>
+                    <release>19</release><enablePreview>true</enablePreview>
                     <compilerArgs>
                        
                         <arg>--add-modules</arg>
@@ -138,7 +138,7 @@
     </build>
     
     <properties>
-        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.release>19</maven.compiler.release>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
