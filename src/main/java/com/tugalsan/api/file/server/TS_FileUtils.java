@@ -209,6 +209,7 @@ public class TS_FileUtils {
         return copyAs(sourceFile, asDestFile, overwrite);
     }
 
+    //TODO SKIP TIME AND DATE IS SAME
     public static Path copyAs(Path sourceFile, Path asDestFile, boolean overwrite) {
         return TGS_UnSafe.call(() -> {
             d.ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
