@@ -88,26 +88,28 @@ public class TS_DirectoryUtils {
         return asDestFolder;
     }
 
-    public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel) {
-        copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, null);
+    public static void copyDirectory(Path sourceFolder, Path asDestFolder) {
+        copyDirectory(sourceFolder, asDestFolder, true, false, null, true);
     }
 
-    public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel, TGS_ValidatorType1<Path> filter) {
+    public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
+            TGS_ValidatorType1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
         d.cr("copyDirectory.i", sourceFolder, asDestFolder, overwrite);
         var dstDirPrefix = asDestFolder.toAbsolutePath().toString();
         var subDirectories = subDirectories(sourceFolder, false, false);
         (parallel ? subDirectories.parallelStream() : subDirectories.stream()).forEach(srcDir -> {
             var dstSubDir = Path.of(dstDirPrefix, srcDir.getFileName().toString());
-            copyDirectory(srcDir, dstSubDir, overwrite, parallel, filter);
+            copyDirectory(srcDir, dstSubDir, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime);
         });
-        copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter);
+        copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime);
     }
 
-    public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel) {
-        copyFiles(sourceFolder, destFolder, overwrite, parallel, null);
+    public static void copyFiles(Path sourceFolder, Path destFolder) {
+        copyFiles(sourceFolder, destFolder, true, false, null, true);
     }
 
-    public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel, TGS_ValidatorType1<Path> filter) {
+    public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
+            TGS_ValidatorType1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
         d.cr("copyFiles.i", sourceFolder, destFolder, overwrite);
         createDirectoriesIfNotExists(destFolder);
         var dstFilePrefix = destFolder.toAbsolutePath().toString();
@@ -120,6 +122,22 @@ public class TS_DirectoryUtils {
                 }
             }
             var dstFile = Path.of(dstFilePrefix, srcFile.getFileName().toString());
+            if (TS_FileUtils.isExistFile(dstFile)) {
+                if (!overwrite) {
+                    return;
+                }
+                if (skipIfSameSizeAndDateAndTime) {
+                    var srcSize = TS_FileUtils.getFileSizeInBytes(srcFile);
+                    var dstSize = TS_FileUtils.getFileSizeInBytes(dstFile);
+                    var sameSize = srcSize == dstSize;
+                    var srcDateAndTime = TS_FileUtils.getTimeLastModified(srcFile);
+                    var dstDateAndTime = TS_FileUtils.getTimeLastModified(dstFile);
+                    var sameDateAnd = srcDateAndTime.equals(dstDateAndTime);
+                    if (sameSize && sameDateAnd) {
+                        return;
+                    }
+                }
+            }
             d.cr("copyFiles.f", srcFile, dstFile, overwrite);
             TS_FileUtils.copyAs(srcFile, dstFile, overwrite);
         });
