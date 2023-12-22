@@ -219,7 +219,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_UnSafe.run(() -> Files.copy(sourceFile, asDestFile), e -> d.ce("copyAs", e));
+            TGS_UnSafe.run(() -> Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("copyAs", e));
             if (!isExistFile(asDestFile)) {
                 return null;
             }
