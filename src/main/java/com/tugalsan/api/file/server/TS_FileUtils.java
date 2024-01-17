@@ -192,7 +192,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_UnSafe.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("moveAs", e));
+            TGS_UnSafe.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ct("moveAs", e));
             return asDestFile;
         });
     }
