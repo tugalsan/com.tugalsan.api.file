@@ -110,5 +110,5 @@ public class TS_FileWatchUtils {
         });
         return true;
     }
-    private static TGS_Tuple2<TGS_Time, Path> directoryBuffer = TGS_Tuple2.of();
+    private static final TGS_Tuple2<TGS_Time, Path> directoryBuffer = TGS_Tuple2.of();
 }

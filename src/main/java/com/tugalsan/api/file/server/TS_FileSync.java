@@ -4,15 +4,14 @@ import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.Arrays;
 import java.util.Objects;
 
 @Deprecated //NOT TESTET WHATSOEVER
 public class TS_FileSync {
 
     public static void mirror(String src, String dst) throws Exception {
-        new TS_FileSync().sync(src, dst);
-        new TS_FileSync().clean(src, dst);
+        TS_FileSync.sync(src, dst);
+        TS_FileSync.clean(src, dst);
     }
 
     public static void clean(String fromPath, String toPath) throws Exception {

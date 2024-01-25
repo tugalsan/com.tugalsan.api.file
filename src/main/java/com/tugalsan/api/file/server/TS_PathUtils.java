@@ -57,7 +57,7 @@ public class TS_PathUtils {
                         "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
                 ));
             }
-            return new TGS_Tuple2(isURL ? Path.of(new URL(path).toURI()) : Path.of(path), null);
+            return new TGS_Tuple2(isURL ? Path.of(URI.create(path)) : Path.of(path), null);
         }, e -> {
             d.ci("toPathAndError", e);
             return new TGS_Tuple2(null, e);

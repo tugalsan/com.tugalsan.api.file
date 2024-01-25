@@ -57,10 +57,10 @@ public class TS_DirectoryWatchDriver {
 
         if (recursive) {
             d.ci("constructor.recursive", "Scanning %s ...\n".formatted(dir));
-            registerAll(dir);
+            registerAll(dir, triggers);
             d.ci("constructor.recursive", "Done.");
         } else {
-            register(dir);
+            register(dir, triggers);
         }
         processEvents(forFile);
     }
@@ -99,23 +99,22 @@ public class TS_DirectoryWatchDriver {
                 continue;
             }
 
-            for (WatchEvent<?> event : key.pollEvents()) {
+            key.pollEvents().forEach(event -> {
                 var kind = event.kind();
-                if (kind == OVERFLOW) {
-                    continue;
+                if (!(kind == OVERFLOW)) {
+                    WatchEvent<Path> ev = cast(event);
+                    var name = ev.context();
+                    var child = dir.resolve(name);
+                    forFile.run(child);
+                    if (recursive && (kind == ENTRY_CREATE)) {
+                        TGS_UnSafe.run(() -> {
+                            if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
+                                registerAll(child);
+                            }
+                        }, e -> d.ce("processEvents", e));
+                    }
                 }
-                WatchEvent<Path> ev = cast(event);
-                var name = ev.context();
-                var child = dir.resolve(name);
-                forFile.run(child);
-                if (recursive && (kind == ENTRY_CREATE)) {
-                    TGS_UnSafe.run(() -> {
-                        if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-                            registerAll(child);
-                        }
-                    }, e -> d.ce("processEvents", e));
-                }
-            }
+            });
             if (!key.reset()) {// reset key and remove from set if directory no longer accessible
                 keys.remove(key);
                 if (keys.isEmpty()) {// all directories are inaccessible
