@@ -32,7 +32,7 @@ public class TS_FileWatchUtils {
                 var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
                 d.ci("file", "filenames same", targetFile, filename);
                 if (lastModified.equals(lastProcessedFile_lastModified.value0)) {
-                    d.ci("file", "lastProcessedFile detected", "skipping...");
+                    d.ce("file", "lastProcessedFile detected", "skipping...");
                     return;
                 }
                 lastProcessedFile_lastModified.value0 = lastModified;
