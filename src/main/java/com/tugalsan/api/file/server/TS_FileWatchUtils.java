@@ -8,12 +8,12 @@ import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
 import com.tugalsan.api.tuple.client.TGS_Tuple2;
 import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
 import com.tugalsan.api.time.client.TGS_Time;
-import com.tugalsan.api.tuple.client.TGS_Tuple1;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 public class TS_FileWatchUtils {
@@ -26,16 +26,16 @@ public class TS_FileWatchUtils {
 
     public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_Runnable exe, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
-        TGS_Tuple1<TGS_Time> lastProcessedFile_lastModified = TGS_Tuple1.of();
+        AtomicReference<TGS_Time> lastProcessedFile_lastModified = new AtomicReference();
         return directory(killTrigger, targetFile.getParent(), filename -> {
             if (targetFileName.equals(filename)) {
                 var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
                 d.ci("file", "filenames same", targetFile, filename);
-                if (lastModified.equals(lastProcessedFile_lastModified.value0)) {
+                if (lastModified.equals(lastProcessedFile_lastModified.get())) {
                     d.ce("file", "lastProcessedFile detected", "skipping...");
                     return;
                 }
-                lastProcessedFile_lastModified.value0 = lastModified;
+                lastProcessedFile_lastModified.set(lastModified);
                 exe.run();
             } else {
                 d.ci("file", "INFO:skipped", "filenames not same", targetFile, filename);
