@@ -28,18 +28,18 @@ public class TS_FileWatchUtils {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         AtomicReference<TGS_Time> lastProcessedFile_lastModified = new AtomicReference();
         return directory(killTrigger, targetFile.getParent(), filename -> {
-            if (targetFileName.equals(filename)) {
-                var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
-                d.ci("file", "filenames same", targetFile, filename);
-                if (lastModified.equals(lastProcessedFile_lastModified.get())) {
-                    d.ce("file", "lastProcessedFile detected", "skipping...");
-                    return;
-                }
-                lastProcessedFile_lastModified.set(lastModified);
-                exe.run();
-            } else {
+            if (!targetFileName.equals(filename)) {
                 d.ci("file", "INFO:skipped", "filenames not same", targetFile, filename);
+                return;
             }
+            d.ci("file", "filenames same", targetFile, filename);
+            var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
+            if (lastModified.equals(lastProcessedFile_lastModified.get())) {
+                d.ce("file", "lastProcessedFile detected", "skipping...");
+                return;
+            }
+            lastProcessedFile_lastModified.set(lastModified);
+            exe.run();
         }, types);
     }
 
