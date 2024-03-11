@@ -271,13 +271,13 @@ public class TS_FileUtils {
     }
 
     public static String mime(Path img) {
-        var typ = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(img));
+        var typ = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(img)).replace(";charset=UTF-8", "");
         if (TGS_StringUtils.isPresent(typ) && typ.length() < 5) {
             return typ;
         }
         return TGS_UnSafe.call(() -> {
             var url = img.toUri().toURL();
-            return url.openConnection().getContentType();
+            return url.openConnection().getContentType().replace(";charset=UTF-8", "");
         }, e -> {
             d.ct("mime(TGS_Url img)", e);
             return typ;
