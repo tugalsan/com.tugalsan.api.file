@@ -8,7 +8,9 @@ import javax.xml.bind.*;
 import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
+import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.unsafe.client.*;
+import java.net.URLConnection;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
@@ -267,4 +269,19 @@ public class TS_FileUtils {
         var strDst = strSrc.substring(0, strSrc.length() - type.length()) + newType;
         return Path.of(strDst);
     }
+
+    public static String mime(Path img) {
+        var typ = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(img));
+        if (TGS_StringUtils.isPresent(typ) || typ.length() < 5) {
+            return typ;
+        }
+        return TGS_UnSafe.call(() -> {
+            var url = img.toUri().toURL();
+            return url.openConnection().getContentType();
+        }, e -> {
+            d.ct("mime(TGS_Url img)", e);
+            return typ;
+        });
+    }
+
 }
