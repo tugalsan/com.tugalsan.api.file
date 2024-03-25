@@ -93,6 +93,9 @@ public class TS_FileWatchUtils {
                     directory.register(watchService, cast(types));
                     while (kt.hasNotTriggered()) {
                         var key = watchService.take();
+                        if (kt.hasTriggered()) {
+                            continue;
+                        }
                         for (WatchEvent<?> event : key.pollEvents()) {
                             var detectedFile = (Path) event.context();
                             if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {//IF INIT
