@@ -34,6 +34,10 @@ public class TS_FileWatchUtils {
             }
             d.ci("file", "filenames same", targetFile, filename);
             var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
+            if (lastModified == null) {
+                d.ce("file", "cannot fetch lastModified", "skipping...", targetFile);
+                return;
+            }
             if (lastModified.equals(lastProcessedFile_lastModified.get())) {
                 d.ce("file", "lastProcessedFile detected", "skipping...");
                 return;
