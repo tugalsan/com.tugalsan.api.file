@@ -13,6 +13,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
@@ -91,11 +92,8 @@ public class TS_FileWatchUtils {
             TGS_UnSafe.run(() -> {
                 try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
-                    while (kt.hasNotTriggered()) {
-                        var key = watchService.take();
-                        if (kt.hasTriggered()) {
-                            continue;
-                        }
+                    WatchKey key;
+                    while (kt.hasNotTriggered() && (key = watchService.take()) != null) {
                         for (WatchEvent<?> event : key.pollEvents()) {
                             var detectedFile = (Path) event.context();
                             if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {//IF INIT
