@@ -9,7 +9,9 @@ import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
-import com.tugalsan.api.unsafe.client.*;
+import com.tugalsan.api.union.client.TGS_Union;
+import com.tugalsan.api.union.client.TGS_UnionUtils;
+import java.io.IOException;
 import java.net.URLConnection;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
@@ -26,67 +28,107 @@ public class TS_FileUtils {
         return TGS_Time.ofMillis(fileTime.toMillis());
     }
 
-    public static long getFileSizeInBytes(Path file) {
-        return TGS_UnSafe.call(() -> Files.size(file));
+    public static TGS_Union<Long> getFileSizeInBytes(Path file) {
+        try {
+            return TGS_Union.of(Files.size(file));
+        } catch (IOException | SecurityException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static Path setTimeLastModified(Path path, TGS_Time time) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Boolean> setTimeLastModified(Path path, TGS_Time time) {
+        try {
             Files.setAttribute(path, "lastModifiedTime", toFileTime(time));
-            return path;
-        });
+            return TGS_Union.of(true);
+        } catch (IOException | UnsupportedOperationException | IllegalArgumentException | SecurityException | ClassCastException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static Path setTimeAccessTime(Path path, TGS_Time time) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Boolean> setTimeAccessTime(Path path, TGS_Time time) {
+        try {
             Files.setAttribute(path, "lastAccessTime", toFileTime(time));
-            return path;
-        });
+            return TGS_Union.of(true);
+        } catch (IOException | UnsupportedOperationException | IllegalArgumentException | SecurityException | ClassCastException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static Path setTimeCreationTime(Path path, TGS_Time time) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Boolean> setTimeCreationTime(Path path, TGS_Time time) {
+        try {
             Files.setAttribute(path, "creationTime", toFileTime(time));
-            return path;
-        });
+            return TGS_Union.of(true);
+        } catch (IOException | UnsupportedOperationException | IllegalArgumentException | SecurityException | ClassCastException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static TGS_Time getTimeLastModified(Path path) {
-        return TGS_UnSafe.call(() -> {
-            return TGS_Time.ofMillis(Files
-                    .readAttributes(path, BasicFileAttributes.class)
-                    .lastModifiedTime()
-                    .toMillis()
+    public static TGS_Union<TGS_Time> getTimeLastModified(Path path) {
+        try {
+            return TGS_Union.of(
+                    TGS_Time.ofMillis(
+                            Files
+                                    .readAttributes(path, BasicFileAttributes.class)
+                                    .lastModifiedTime()
+                                    .toMillis()
+                    )
             );
-        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
+        } catch (IOException | SecurityException | UnsupportedOperationException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static TGS_Time getTimeLastAccessTime(Path path) {
-        return TGS_UnSafe.call(() -> {
-            return TGS_Time.ofMillis(Files
-                    .readAttributes(path, BasicFileAttributes.class)
-                    .lastAccessTime()
-                    .toMillis()
+    public static TGS_Union<TGS_Time> getTimeLastAccessTime(Path path) {
+        try {
+            return TGS_Union.of(
+                    TGS_Time.ofMillis(
+                            Files
+                                    .readAttributes(path, BasicFileAttributes.class)
+                                    .lastAccessTime()
+                                    .toMillis()
+                    )
             );
-        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
+        } catch (IOException | SecurityException | UnsupportedOperationException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static TGS_Time getTimeCreationTime(Path path) {
-        return TGS_UnSafe.call(() -> {
-            return TGS_Time.ofMillis(Files
-                    .readAttributes(path, BasicFileAttributes.class)
-                    .creationTime()
-                    .toMillis()
+    public static TGS_Union<TGS_Time> getTimeCreationTime(Path path) {
+        try {
+            return TGS_Union.of(
+                    TGS_Time.ofMillis(
+                            Files
+                                    .readAttributes(path, BasicFileAttributes.class)
+                                    .creationTime()
+                                    .toMillis()
+                    )
             );
-        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
+        } catch (IOException | SecurityException | UnsupportedOperationException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static byte[] read(Path source) {
-        return TGS_UnSafe.call(() -> Files.readAllBytes(source));
+    public static TGS_Union<byte[]> read(Path source) {
+        try {
+            return TGS_Union.of(Files.readAllBytes(source));
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static Path write(byte[] source, Path dest, boolean append) {
-        return TGS_UnSafe.call(() -> Files.write(dest, source, StandardOpenOption.CREATE, append ? StandardOpenOption.APPEND : StandardOpenOption.WRITE));
+    public static TGS_Union<Boolean> write(byte[] source, Path dest, boolean append) {
+        try {
+            return TGS_Union.of(
+                    Files.write(
+                            dest,
+                            source,
+                            StandardOpenOption.CREATE,
+                            append ? StandardOpenOption.APPEND : StandardOpenOption.WRITE
+                    ) != null
+            );
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
     public static boolean isFileReadable(Path file) {
@@ -101,42 +143,45 @@ public class TS_FileUtils {
         return file != null && !Files.isDirectory(file) && Files.exists(file);
     }
 
-    public static boolean createFileIfNotExists(Path file) {
-        return isExistFile(file) || createFile(file);
+    public static TGS_Union<Boolean> createFileIfNotExists(Path file) {
+        if (isExistFile(file)) {
+            return TGS_Union.of(true);
+        }
+        return createFile(file);
     }
 
-    public static boolean createFile(Path file) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Boolean> createFile(Path file) {
+        try {
             TS_DirectoryUtils.createDirectoriesIfNotExists(file.getParent());
             Files.createFile(file);
-            return true;
-        }, exception -> {
-            d.ce("createFile", file, exception);
-            return false;
-        });
+            return TGS_Union.of(true);
+        } catch (IOException | UnsupportedOperationException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static boolean isEmptyFile(Path file) {
-        return getFileSizeInBytes(file) == 0L;
+    public static TGS_Union<Boolean> isEmptyFile(Path file) {
+        var u = getFileSizeInBytes(file);
+        if (u.isEmpty()) {
+            return TGS_Union.ofThrowable(u.throwable());
+        }
+        return TGS_Union.of(u.value() == 0L);
     }
 
-    public static boolean deleteFileIfExists(Path file) {
+    public static TGS_Union<Boolean> deleteFileIfExists(Path file) {
         return deleteFileIfExists(file, true);
     }
 
-    public static boolean deleteFileIfExists(Path file, boolean printStackTrace) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Boolean> deleteFileIfExists(Path file, boolean printStackTrace) {
+        try {
             if (!isExistFile(file)) {
-                return true;
+                return TGS_Union.of(true);
             }
             Files.deleteIfExists(file);
-            return !isExistFile(file);
-        }, exception -> {
-            if (printStackTrace) {
-                exception.printStackTrace();
-            }
-            return false;
-        });
+            return TGS_Union.of(!isExistFile(file));
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
     public static String getFullPath(Path path) {
@@ -184,83 +229,88 @@ public class TS_FileUtils {
         return fullName.substring(i + 1);
     }
 
-    public static Path moveAs(Path sourceFile, Path asDestFile, boolean overwrite) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Boolean> moveAs(Path sourceFile, Path asDestFile, boolean overwrite) {
+        try {
             d.ci("moveAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
-                return asDestFile;
+                return TGS_Union.of(true);
             }
             TS_DirectoryUtils.createDirectoriesIfNotExists(asDestFile.getParent());
             if (!overwrite && isExistFile(asDestFile)) {
-                return null;
+                return TGS_Union.of(false);
             }
-            TGS_UnSafe.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ct("moveAs", e));
-            return asDestFile;
-        });
+            return TGS_Union.of(
+                    Files.move(
+                            sourceFile,
+                            asDestFile,
+                            StandardCopyOption.REPLACE_EXISTING
+                    ) != null
+            );
+        } catch (IOException | UnsupportedOperationException | SecurityException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static Path moveToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
+    public static TGS_Union<Boolean> moveToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
         d.ci("moveToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
         var asDestFile = destFolder.resolve(sourceFile.getFileName());
         return moveAs(sourceFile, asDestFile, overwrite);
     }
 
-    public static Path copyToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
+    public static TGS_Union<Boolean> copyToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
         d.ci("copyToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
         var asDestFile = destFolder.resolve(sourceFile.getFileName());
         return copyAs(sourceFile, asDestFile, overwrite);
     }
 
-    public static Path copyAs(Path sourceFile, Path asDestFile, boolean overwrite) {
-        return TGS_UnSafe.call(() -> {
-            d.ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
-            if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
-                return asDestFile;
-            }
-            TS_DirectoryUtils.createDirectoriesIfNotExists(asDestFile.getParent());
-            if (!overwrite && isExistFile(asDestFile)) {
-                return null;
-            }
-            TGS_UnSafe.run(() -> Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("copyAs", e));
-            if (!isExistFile(asDestFile)) {
-                return null;
-            }
-            return asDestFile;
-        });
-    }
-
-    public static Path copyAsAssure(Path source, Path dest, boolean overwrite) {
-        var path = copyAs(source, dest, overwrite);
-        if (!isExistFile(dest)) {
-            TGS_UnSafe.thrw(d.className, "copyAsAssure", "!isExistFile(dest):" + dest);
+    public static TGS_Union<Boolean> copyAs(Path sourceFile, Path asDestFile, boolean overwrite) {
+        d.ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
+        if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
+            return TGS_Union.of(true);
         }
-        return path;
+        TS_DirectoryUtils.createDirectoriesIfNotExists(asDestFile.getParent());
+        if (!overwrite && isExistFile(asDestFile)) {
+            return TGS_Union.ofEmpty();
+        }
+        try {
+            Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
+        if (!isExistFile(asDestFile)) {
+            return TGS_Union.of(false);
+        }
+        return TGS_Union.of(true);
     }
 
     @SuppressWarnings("empty-statement")
-    public static Optional<Long> getChecksumLng(Path file) {
-        return TGS_UnSafe.call(() -> {
-            try (var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
-                var bytes = new byte[1024];
-                while (in.read(bytes) >= 0)
+    public static TGS_Union<Long> getChecksumLng(Path file) {
+        try (var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
+            var bytes = new byte[1024];
+            while (in.read(bytes) >= 0)
 			;
-                return Optional.of(in.getChecksum().getValue());
-            }
-        }, e -> {
-            return Optional.empty();
-        });
+            return TGS_Union.of(in.getChecksum().getValue());
+        } catch (IOException e) {
+            return TGS_Union.ofThrowable(e);
+        }
     }
 
-    public static Optional<String> getChecksumHex(Path file) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<String> getChecksumHex(Path file) {
+        try {
             var bytes = Files.readAllBytes(file);
             var hash = MessageDigest.getInstance("MD5").digest(bytes);
-            return Optional.of(DatatypeConverter.printHexBinary(hash));
-        }, e -> Optional.empty());//POSSIBLY ACCESS DENIED EXCEPTION
+            return TGS_Union.of(DatatypeConverter.printHexBinary(hash));
+        } catch (IOException | NoSuchAlgorithmException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static Path rename(Path source, CharSequence newFileName) {
-        return moveAs(source, source.resolveSibling(newFileName.toString()), false);
+    public static TGS_Union<Boolean> rename(Path source, CharSequence newFileName) {
+        return moveAs(
+                source,
+                source.resolveSibling(newFileName.toString()),
+                false
+        );
     }
 
     public static Path imitateNameType(Path src, String newType) {
@@ -275,13 +325,13 @@ public class TS_FileUtils {
         if (TGS_StringUtils.isPresent(typ) && typ.length() < 5) {
             return typ.replace(";charset=UTF-8", "");
         }
-        return TGS_UnSafe.call(() -> {
+        try {
             var url = img.toUri().toURL();
-            return url.openConnection().getContentType().replace(";charset=UTF-8", "");
-        }, e -> {
-            d.ct("mime(TGS_Url img)", e);
+            return url.openConnection().getContentType()
+                    .replace(";charset=UTF-8", "");
+        } catch (IOException ex) {
             return typ;
-        });
+        }
     }
 
 }

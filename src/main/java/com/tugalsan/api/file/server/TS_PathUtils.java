@@ -6,10 +6,9 @@ import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 import com.tugalsan.api.log.server.*;
-import com.tugalsan.api.tuple.client.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
-import com.tugalsan.api.unsafe.client.*;
+import com.tugalsan.api.union.client.TGS_Union;
 
 public class TS_PathUtils {
 
@@ -47,40 +46,39 @@ public class TS_PathUtils {
         return path.getParent();
     }
 
-    public static TGS_Tuple2<Path, Exception> toPathOrError(CharSequence fileOrDirectory) {
-        return TGS_UnSafe.call(() -> {
-            var path = fileOrDirectory.toString();
-            var isURL = path.contains("://");
-            if (isURL && !TGS_CharSetCast.toLocaleLowerCase(path).startsWith("file:")) {
-                d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
-                return new TGS_Tuple2(null, TGS_UnSafe.toRuntimeException(d.className, "toPathAndError",
-                        "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
-                ));
-            }
-            return new TGS_Tuple2(isURL ? Path.of(URI.create(path)) : Path.of(path), null);
-        }, e -> {
-            d.ci("toPathAndError", e);
-            return new TGS_Tuple2(null, e);
-        });
+    public static TGS_Union<Path> toPathOrError(CharSequence fileOrDirectory) {
+        var path = fileOrDirectory.toString();
+        var isURL = path.contains("://");
+        if (isURL && !TGS_CharSetCast.toLocaleLowerCase(path).startsWith("file:")) {
+            d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
+            return TGS_Union.ofThrowable(d.className, "toPathAndError",
+                    "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
+            );
+        }
+        return TGS_Union.of(isURL ? Path.of(URI.create(path)) : Path.of(path));
     }
 
-    public static Path of(String path) {
-        return TGS_UnSafe.call(() -> {
-            if (TGS_StringUtils.isNullOrEmpty(path)) {
-                return null;
-            }
-            return Path.of(path);
-        }, e -> {
-            e.printStackTrace();
-            return null;
-        });
+    public static TGS_Union<Path> of(String path) {
+        if (TGS_StringUtils.isNullOrEmpty(path)) {
+            return TGS_Union.ofEmpty();
+        }
+        try {
+            return TGS_Union.of(Path.of(path));
+        } catch (FileSystemNotFoundException | SecurityException | IllegalArgumentException e) {
+            return TGS_Union.ofThrowable(e);
+        }
     }
 
-    public static Path toPath(Class c) {
-        return TGS_UnSafe.call(() -> {
-            var url = c.getProtectionDomain().getCodeSource().getLocation();
-            return Path.of(url.toURI());
-        });
+    public static TGS_Union<Path> of(URL u) {
+        try {
+            return TGS_Union.of(Path.of(u.toURI()));
+        } catch (URISyntaxException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
+    }
+
+    public static TGS_Union<Path> of(Class c) {
+        return of(c.getProtectionDomain().getCodeSource().getLocation());
     }
 
     //GOODIES
@@ -91,16 +89,20 @@ public class TS_PathUtils {
         return parentPath.endsWith(File.separator) ? parentPath + parentPathDependentChildPath : parentPath + File.separator + parentPathDependentChildPath;
     }
 
-    public static String substract(String from_childFullPath, String to_parentPath) {
-        return TGS_UnSafe.call(() -> {
-            return from_childFullPath.substring(to_parentPath.length() + 1);
-        }, exception -> {
-            return null;
-        });
+    public static TGS_Union<String> substract(String from_childFullPath, String to_parentPath) {
+        try {
+            return TGS_Union.of(from_childFullPath.substring(to_parentPath.length() + 1));
+        } catch (IndexOutOfBoundsException e) {
+            return TGS_Union.ofThrowable(e);
+        }
     }
 
-    public static String getDriveLetter(Path path) {
-        return path.getRoot().toString();
+    public static TGS_Union<String> getDriveLetter(Path path) {
+        var root = path.getRoot();
+        if (root == null) {
+            return TGS_Union.ofEmpty();
+        }
+        return TGS_Union.of(path.toString());
     }
 
     public static boolean contains(List<Path> sources, Path searchFor) {

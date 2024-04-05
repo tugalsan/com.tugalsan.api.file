@@ -5,10 +5,11 @@ import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
-import com.tugalsan.api.tuple.client.TGS_Tuple2;
 import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
 import com.tugalsan.api.time.client.TGS_Time;
-import com.tugalsan.api.unsafe.client.TGS_UnSafe;
+import com.tugalsan.api.tuple.client.TGS_Tuple2;
+import com.tugalsan.api.union.server.TS_UnionUtils;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -34,16 +35,17 @@ public class TS_FileWatchUtils {
                 return;
             }
             d.ci("file", "filenames same", targetFile, filename);
-            var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
-            if (lastModified == null) {
-                d.ce("file", "cannot fetch lastModified", "skipping...", targetFile);
+            var u = TS_FileUtils.getTimeLastModified(targetFile);
+            if (u.isEmpty()) {
+                d.ce("file", "cannot fetch lastModified", "skipping...", targetFile, u.throwable().getMessage());
                 return;
             }
+            var lastModified = u.value();
             if (lastModified.equals(lastProcessedFile_lastModified.get())) {
                 d.ce("file", "lastProcessedFile detected", "skipping...");
                 return;
             }
-            lastProcessedFile_lastModified.set(lastModified);
+            lastProcessedFile_lastModified.set(u.value());
             exe.run();
         }, types);
     }
@@ -89,37 +91,38 @@ public class TS_FileWatchUtils {
             return false;
         }
         TS_ThreadAsync.now(killTrigger, kt -> {
-            TGS_UnSafe.run(() -> {
-                try (var watchService = FileSystems.getDefault().newWatchService()) {
-                    directory.register(watchService, cast(types));
-                    WatchKey key;
-                    while (kt.hasNotTriggered() && (key = watchService.take()) != null) {
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            var detectedFile = (Path) event.context();
-                            if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {//IF INIT
-                                directoryBuffer.value0 = TGS_Time.of();
-                                directoryBuffer.value1 = detectedFile;
-                                filename.run(TS_FileUtils.getNameFull(detectedFile));
-                                d.ci("directory", "new", directoryBuffer.value1);
+            try (var watchService = FileSystems.getDefault().newWatchService()) {
+                directory.register(watchService, cast(types));
+                WatchKey key;
+                while (kt.hasNotTriggered() && (key = watchService.take()) != null) {
+                    for (WatchEvent<?> event : key.pollEvents()) {
+                        var detectedFile = (Path) event.context();
+                        if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {//IF INIT
+                            directoryBuffer.value0 = TGS_Time.of();
+                            directoryBuffer.value1 = detectedFile;
+                            filename.run(TS_FileUtils.getNameFull(detectedFile));
+                            d.ci("directory", "new", directoryBuffer.value1);
+                            continue;
+                        }
+                        var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
+                        {//SKIP IF DOUBLE NOTIFY
+                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
+                                d.ci("directory", "skipped", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
                                 continue;
                             }
-                            var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
-                            {//SKIP IF DOUBLE NOTIFY
-                                if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
-                                    d.ci("directory", "skipped", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
-                                    continue;
-                                }
-                            }
-                            {//NOTIFY
-                                directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
-                                d.ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
-                                filename.run(TS_FileUtils.getNameFull(detectedFile));
-                            }
                         }
-                        key.reset();
+                        {//NOTIFY
+                            directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
+                            d.ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                            filename.run(TS_FileUtils.getNameFull(detectedFile));
+                        }
                     }
+                    key.reset();
                 }
-            });
+            } catch (InterruptedException | IOException ex) {
+                TS_UnionUtils.throwAsRuntimeExceptionIfInterruptedException(ex);
+                d.ce("directory.now", directory, ex.getMessage());
+            }
         });
         return true;
     }

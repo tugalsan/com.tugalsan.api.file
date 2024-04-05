@@ -1,24 +1,29 @@
 package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.stream.client.*;
-import com.tugalsan.api.unsafe.client.*;
+import com.tugalsan.api.union.client.TGS_Union;
+import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 
 public class TS_RootUtils {
 
-    public static long getUsableSpaceInBytes(Path root) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Long> getUsableSpaceInBytes(Path root) {
+        try {
             var store = Files.getFileStore(root);
-            return store.getUsableSpace();
-        });
+            return TGS_Union.of(store.getUsableSpace());
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
-    public static long getTotalSpaceInBytes(Path root) {
-        return TGS_UnSafe.call(() -> {
+    public static TGS_Union<Long> getTotalSpaceInBytes(Path root) {
+        try {
             var store = Files.getFileStore(root);
-            return store.getTotalSpace();
-        });
+            return TGS_Union.of(store.getTotalSpace());
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
     public static List<Path> getRoots() {

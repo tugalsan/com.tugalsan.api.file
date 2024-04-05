@@ -5,7 +5,8 @@ import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.TS_FileWatchUtils;
 import com.tugalsan.api.file.server.TS_FileWatchUtils.Triggers;
 import com.tugalsan.api.log.server.TS_Log;
-import com.tugalsan.api.unsafe.client.TGS_UnSafe;
+import com.tugalsan.api.union.client.TGS_Union;
+import com.tugalsan.api.union.server.TS_UnionUtils;
 import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.*;
 import static java.nio.file.LinkOption.*;
@@ -40,14 +41,18 @@ public class TS_DirectoryWatchDriver {
         keys.put(key, dir);
     }
 
-    private void registerAll(Path start, Triggers... triggers) throws IOException {
-        Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                register(dir, triggers);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+    private void registerAll(Path start, Triggers... triggers) {
+        try {
+            Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    register(dir, triggers);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException ex) {
+            d.ce("registerAll", start, ex.getMessage());
+        }
     }
 
     private TS_DirectoryWatchDriver(Path dir, TGS_RunnableType1<Path> forFile, boolean recursive, TS_FileWatchUtils.Triggers... triggers) throws IOException {
@@ -66,17 +71,25 @@ public class TS_DirectoryWatchDriver {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver of(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
-        return TGS_UnSafe.call(() -> new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
+    public static TGS_Union<TS_DirectoryWatchDriver> of(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+        try {
+            return TGS_Union.of(new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
-        return TGS_UnSafe.call(() -> new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
+    public static TGS_Union<TS_DirectoryWatchDriver> ofRecursive(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+        try {
+            return TGS_Union.of(new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
+        } catch (IOException ex) {
+            return TGS_Union.ofThrowable(ex);
+        }
     }
 
     @Deprecated //PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver ofFile(Path file, TGS_Runnable exe) {
+    public static TGS_Union<TS_DirectoryWatchDriver> ofFile(Path file, TGS_Runnable exe) {
         return TS_DirectoryWatchDriver.of(file.getParent(), forFile -> {
             if (forFile.equals(file)) {
                 exe.run();
@@ -90,6 +103,7 @@ public class TS_DirectoryWatchDriver {
             try {
                 key = watcher.take();//WAIT SIGNAL
             } catch (InterruptedException x) {
+                TS_UnionUtils.throwAsRuntimeExceptionIfInterruptedException(x);
                 return;
             }
 
@@ -107,11 +121,9 @@ public class TS_DirectoryWatchDriver {
                     var child = dir.resolve(name);
                     forFile.run(child);
                     if (recursive && (kind == ENTRY_CREATE)) {
-                        TGS_UnSafe.run(() -> {
-                            if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-                                registerAll(child);
-                            }
-                        }, e -> d.ce("processEvents", e));
+                        if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
+                            registerAll(child);
+                        }
                     }
                 }
             });
