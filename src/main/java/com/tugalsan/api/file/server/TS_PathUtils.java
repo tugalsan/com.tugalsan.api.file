@@ -51,7 +51,7 @@ public class TS_PathUtils {
         var isURL = path.contains("://");
         if (isURL && !TGS_CharSetCast.toLocaleLowerCase(path).startsWith("file:")) {
             d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
-            return TGS_Union.ofThrowable(d.className, "toPathAndError",
+            return TGS_Union.ofExcuse(d.className, "toPathAndError",
                     "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
             );
         }
@@ -60,12 +60,12 @@ public class TS_PathUtils {
 
     public static TGS_Union<Path> of(String path) {
         if (TGS_StringUtils.isNullOrEmpty(path)) {
-            return TGS_Union.ofEmpty();
+            return TGS_Union.ofEmpty_NullPointerException();
         }
         try {
             return TGS_Union.of(Path.of(path));
         } catch (FileSystemNotFoundException | SecurityException | IllegalArgumentException e) {
-            return TGS_Union.ofThrowable(e);
+            return TGS_Union.ofExcuse(e);
         }
     }
 
@@ -73,7 +73,7 @@ public class TS_PathUtils {
         try {
             return TGS_Union.of(Path.of(u.toURI()));
         } catch (URISyntaxException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -93,14 +93,14 @@ public class TS_PathUtils {
         try {
             return TGS_Union.of(from_childFullPath.substring(to_parentPath.length() + 1));
         } catch (IndexOutOfBoundsException e) {
-            return TGS_Union.ofThrowable(e);
+            return TGS_Union.ofExcuse(e);
         }
     }
 
     public static TGS_Union<String> getDriveLetter(Path path) {
         var root = path.getRoot();
         if (root == null) {
-            return TGS_Union.ofEmpty();
+            return TGS_Union.ofEmpty_NullPointerException();
         }
         return TGS_Union.of(path.toString());
     }

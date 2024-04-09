@@ -15,12 +15,12 @@ public class TS_FileSync {
 
     final private static TS_Log d = TS_Log.of(TS_FileSync.class);
 
-    public static void mirror(String src, String dst) throws Exception {
+    public static void mirror(String src, String dst)  {
         TS_FileSync.sync(src, dst);
         TS_FileSync.clean(src, dst);
     }
 
-    public static void clean(String fromPath, String toPath) throws Exception {
+    public static void clean(String fromPath, String toPath)  {
         var fromFile = new File(fromPath);
         var toFile = new File(toPath);
         for (var file : fromFile.listFiles()) {
@@ -39,7 +39,7 @@ public class TS_FileSync {
         }
     }
 
-    private static void cleanFile(File file, File toFile) throws Exception {
+    private static void cleanFile(File file, File toFile)  {
         if (file.getName().startsWith(".")) {
             return;
         }
@@ -92,7 +92,7 @@ public class TS_FileSync {
             }
             return TGS_Union.of(true);
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 }

@@ -75,7 +75,7 @@ public class TS_DirectoryWatchDriver {
         try {
             return TGS_Union.of(new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -84,7 +84,7 @@ public class TS_DirectoryWatchDriver {
         try {
             return TGS_Union.of(new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 

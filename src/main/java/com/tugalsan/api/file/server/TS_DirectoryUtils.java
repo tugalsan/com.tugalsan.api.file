@@ -45,7 +45,7 @@ public class TS_DirectoryUtils {
         d.ci("flattenDirectory", "sourceFolder", sourceFolder);
         var u_subDirs = subDirectories(sourceFolder, false, false);
         if (u_subDirs.isError()) {
-            return TGS_Union.ofThrowable(u_subDirs.throwable());
+            return TGS_Union.ofExcuse(u_subDirs.excuse());
         }
         var subDirs = u_subDirs.value();
         d.ci("flattensubDirsDirectory", "subDirs.size()", subDirs.size());
@@ -54,7 +54,7 @@ public class TS_DirectoryUtils {
                 d.ci("flattenDirectory", "subDirs", subDirs);
                 var u_subFiles = subFiles(subDir, null, false, true);
                 if (u_subFiles.isError()) {
-                    throw new FlattenDirectoryException(subDir, u_subFiles.throwable());
+                    throw new FlattenDirectoryException(subDir, u_subFiles.excuse());
                 }
                 var subFiles = u_subDirs.value();
                 d.ci("flattenDirectory", "subFiles.size()", subFiles.size());
@@ -65,7 +65,7 @@ public class TS_DirectoryUtils {
             });
             return TGS_Union.of(true);
         } catch (FlattenDirectoryException e) {
-            return TGS_Union.ofThrowable(e);
+            return TGS_Union.ofExcuse(e);
         }
     }
 
@@ -87,13 +87,13 @@ public class TS_DirectoryUtils {
 
         var u_strSubDirs = subDirectories2(sourceFolder, false, true);//DO NOT CHANGE THE ORDER
         if (u_strSubDirs.isError()) {
-            return TGS_Union.ofThrowable(u_strSubDirs.throwable());
+            return TGS_Union.ofExcuse(u_strSubDirs.excuse());
         }
         var strSubDirs = u_strSubDirs.value();
 
         var u_strSubFiles = subFiles2(sourceFolder, null, false, true);
         if (u_strSubFiles.isError()) {
-            return TGS_Union.ofThrowable(u_strSubFiles.throwable());
+            return TGS_Union.ofExcuse(u_strSubFiles.excuse());
         }
         var strSubFiles = u_strSubFiles.value();
 
@@ -125,7 +125,7 @@ public class TS_DirectoryUtils {
         var dstDirPrefix = asDestFolder.toAbsolutePath().toString();
         var u_subDirectories = subDirectories(sourceFolder, false, false);
         if (u_subDirectories.isError()) {
-            return TGS_Union.ofThrowable(u_subDirectories.throwable());
+            return TGS_Union.ofExcuse(u_subDirectories.excuse());
         }
         var subDirectories = u_subDirectories.value();
         (parallel ? subDirectories.parallelStream() : subDirectories.stream()).forEach(srcDir -> {
@@ -144,13 +144,13 @@ public class TS_DirectoryUtils {
         d.cr("copyFiles.i", sourceFolder, destFolder, overwrite);
         var u_createDirectoriesIfNotExists = createDirectoriesIfNotExists(destFolder);
         if (u_createDirectoriesIfNotExists.isError()) {
-            return TGS_Union.ofThrowable(u_createDirectoriesIfNotExists.throwable());
+            return TGS_Union.ofExcuse(u_createDirectoriesIfNotExists.excuse());
         }
 
         var dstFilePrefix = destFolder.toAbsolutePath().toString();
         var u_subFiles = subFiles(sourceFolder, null, false, false);
         if (u_subFiles.isError()) {
-            return TGS_Union.ofThrowable(u_subFiles.throwable());
+            return TGS_Union.ofExcuse(u_subFiles.excuse());
         }
         var subFiles = u_subFiles.value();
         try {
@@ -181,12 +181,12 @@ public class TS_DirectoryUtils {
                 d.cr("copyFiles.f", srcFile, dstFile, overwrite);
                 var u_copyAs = TS_FileUtils.copyAs(srcFile, dstFile, overwrite);
                 if (u_copyAs.isError()) {
-                    throw new CopyFilesException(dstFile, u_copyAs.throwable());
+                    throw new CopyFilesException(dstFile, u_copyAs.excuse());
                 }
             });
             return TGS_Union.of(true);
         } catch (CopyFilesException e) {
-            return TGS_Union.ofThrowable(e);
+            return TGS_Union.ofExcuse(e);
         }
     }
 
@@ -200,7 +200,7 @@ public class TS_DirectoryUtils {
     public static TGS_Union<Boolean> deleteSubDirectories(Path parentDirectory, boolean parallel) {
         var u_subDirectories = subDirectories(parentDirectory, false, false);
         if (u_subDirectories.isError()) {
-            return TGS_Union.ofThrowable(u_subDirectories.throwable());
+            return TGS_Union.ofExcuse(u_subDirectories.excuse());
         }
         var subDirectories = u_subDirectories.value();
         (parallel ? subDirectories.parallelStream() : subDirectories.stream()).forEach(subDir -> {
@@ -223,7 +223,7 @@ public class TS_DirectoryUtils {
     public static TGS_Union<Boolean> deleteSubFiles(Path parentDirectory, String fileNameMatcher, boolean parallel) {
         var u_subFiles = subFiles(parentDirectory, fileNameMatcher, false, false);
         if (u_subFiles.isError()) {
-            return TGS_Union.ofThrowable(u_subFiles.throwable());
+            return TGS_Union.ofExcuse(u_subFiles.excuse());
         }
         var subFiles = u_subFiles.value();
         (parallel ? subFiles.parallelStream() : subFiles.stream()).forEach(subFile -> {
@@ -248,7 +248,7 @@ public class TS_DirectoryUtils {
             }
             return TGS_Union.of(true);
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -283,7 +283,7 @@ public class TS_DirectoryUtils {
             }
             return TGS_Union.of(true);
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -299,7 +299,7 @@ public class TS_DirectoryUtils {
             }
             return TGS_Union.of(true);
         } catch (SecurityException e) {
-            return TGS_Union.ofThrowable(e);
+            return TGS_Union.ofExcuse(e);
         }
     }
 
@@ -317,7 +317,7 @@ public class TS_DirectoryUtils {
             }
             var u_subDirectories = subDirectories(directory, false, true);
             if (u_subDirectories.isError()) {
-                return TGS_Union.ofThrowable(u_subDirectories.throwable());
+                return TGS_Union.ofExcuse(u_subDirectories.excuse());
             }
             var subDirectories = u_subDirectories.value();
             var r = (parallel ? subDirectories.parallelStream() : subDirectories.stream())
@@ -329,7 +329,7 @@ public class TS_DirectoryUtils {
         try (var dirStream = Files.newDirectoryStream(directory)) {
             return TGS_Union.of(!dirStream.iterator().hasNext());
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -348,7 +348,7 @@ public class TS_DirectoryUtils {
             Files.deleteIfExists(directory);
             return TGS_Union.of(true);
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -363,7 +363,7 @@ public class TS_DirectoryUtils {
     public static TGS_Union<List<Path>> subFiles(Path parentDirectory, CharSequence fileNameMatcher, boolean sorted, boolean recursive) {
         var u = subFiles2(parentDirectory, fileNameMatcher, sorted, recursive);
         if (u.isError()) {
-            return TGS_Union.ofThrowable(u.throwable());
+            return TGS_Union.ofExcuse(u.excuse());
         }
         return TGS_Union.of(
                 TGS_StreamUtils.toLst(
@@ -385,7 +385,7 @@ public class TS_DirectoryUtils {
                                     .filter(p -> !Files.isDirectory(p)).map(p -> p.toString())
                     );
                 } catch (IOException ex) {
-                    return TGS_Union.ofThrowable(ex);
+                    return TGS_Union.ofExcuse(ex);
                 }
             } else {
                 try {
@@ -394,7 +394,7 @@ public class TS_DirectoryUtils {
                                     .filter(p -> !Files.isDirectory(p)).map(p -> p.toString())
                     );
                 } catch (IOException ex) {
-                    return TGS_Union.ofThrowable(ex);
+                    return TGS_Union.ofExcuse(ex);
                 }
             }
         } else {
@@ -410,7 +410,7 @@ public class TS_DirectoryUtils {
                                     .map(p -> p.toString())
                     );
                 } catch (IOException ex) {
-                    return TGS_Union.ofThrowable(ex);
+                    return TGS_Union.ofExcuse(ex);
                 }
             } else {
                 try {
@@ -420,7 +420,7 @@ public class TS_DirectoryUtils {
                                     .map(p -> p.toString())
                     );
                 } catch (IOException ex) {
-                    return TGS_Union.ofThrowable(ex);
+                    return TGS_Union.ofExcuse(ex);
                 }
             }
         }
@@ -434,7 +434,7 @@ public class TS_DirectoryUtils {
     public static TGS_Union<List<String>> subDirectories2(Path parentDirectory, boolean sorted, boolean recursive) {
         var u = subDirectories(parentDirectory, sorted, recursive);
         if (u.isError()) {
-            return TGS_Union.ofThrowable(u.throwable());
+            return TGS_Union.ofExcuse(u.excuse());
         }
         return TGS_Union.of(
                 TGS_StreamUtils.toLst(
@@ -454,7 +454,7 @@ public class TS_DirectoryUtils {
                                 .filter(Files::isDirectory)
                 );
             } catch (IOException ex) {
-                return TGS_Union.ofThrowable(ex);
+                return TGS_Union.ofExcuse(ex);
             }
         } else {
             try {
@@ -463,7 +463,7 @@ public class TS_DirectoryUtils {
                                 .filter(Files::isDirectory)
                 );
             } catch (IOException ex) {
-                return TGS_Union.ofThrowable(ex);
+                return TGS_Union.ofExcuse(ex);
             }
         }
         subDirectories = TGS_ListUtils.of(subDirectories);

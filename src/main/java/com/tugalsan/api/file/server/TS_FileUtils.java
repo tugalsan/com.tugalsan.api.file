@@ -32,7 +32,7 @@ public class TS_FileUtils {
         try {
             return TGS_Union.of(Files.size(file));
         } catch (IOException | SecurityException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -41,7 +41,7 @@ public class TS_FileUtils {
             Files.setAttribute(path, "lastModifiedTime", toFileTime(time));
             return TGS_Union.of(true);
         } catch (IOException | UnsupportedOperationException | IllegalArgumentException | SecurityException | ClassCastException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -50,7 +50,7 @@ public class TS_FileUtils {
             Files.setAttribute(path, "lastAccessTime", toFileTime(time));
             return TGS_Union.of(true);
         } catch (IOException | UnsupportedOperationException | IllegalArgumentException | SecurityException | ClassCastException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -59,7 +59,7 @@ public class TS_FileUtils {
             Files.setAttribute(path, "creationTime", toFileTime(time));
             return TGS_Union.of(true);
         } catch (IOException | UnsupportedOperationException | IllegalArgumentException | SecurityException | ClassCastException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -74,7 +74,7 @@ public class TS_FileUtils {
                     )
             );
         } catch (IOException | SecurityException | UnsupportedOperationException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -89,7 +89,7 @@ public class TS_FileUtils {
                     )
             );
         } catch (IOException | SecurityException | UnsupportedOperationException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -104,7 +104,7 @@ public class TS_FileUtils {
                     )
             );
         } catch (IOException | SecurityException | UnsupportedOperationException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -112,7 +112,7 @@ public class TS_FileUtils {
         try {
             return TGS_Union.of(Files.readAllBytes(source));
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -127,7 +127,7 @@ public class TS_FileUtils {
                     ) != null
             );
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -156,14 +156,14 @@ public class TS_FileUtils {
             Files.createFile(file);
             return TGS_Union.of(true);
         } catch (IOException | UnsupportedOperationException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
     public static TGS_Union<Boolean> isEmptyFile(Path file) {
         var u = getFileSizeInBytes(file);
         if (u.isEmpty()) {
-            return TGS_Union.ofThrowable(u.throwable());
+            return TGS_Union.ofExcuse(u.excuse());
         }
         return TGS_Union.of(u.value() == 0L);
     }
@@ -180,7 +180,7 @@ public class TS_FileUtils {
             Files.deleteIfExists(file);
             return TGS_Union.of(!isExistFile(file));
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -247,7 +247,7 @@ public class TS_FileUtils {
                     ) != null
             );
         } catch (IOException | UnsupportedOperationException | SecurityException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -270,12 +270,12 @@ public class TS_FileUtils {
         }
         TS_DirectoryUtils.createDirectoriesIfNotExists(asDestFile.getParent());
         if (!overwrite && isExistFile(asDestFile)) {
-            return TGS_Union.ofEmpty();
+            return TGS_Union.ofEmpty_NullPointerException();
         }
         try {
             Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
         if (!isExistFile(asDestFile)) {
             return TGS_Union.of(false);
@@ -291,7 +291,7 @@ public class TS_FileUtils {
 			;
             return TGS_Union.of(in.getChecksum().getValue());
         } catch (IOException e) {
-            return TGS_Union.ofThrowable(e);
+            return TGS_Union.ofExcuse(e);
         }
     }
 
@@ -301,7 +301,7 @@ public class TS_FileUtils {
             var hash = MessageDigest.getInstance("MD5").digest(bytes);
             return TGS_Union.of(DatatypeConverter.printHexBinary(hash));
         } catch (IOException | NoSuchAlgorithmException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 

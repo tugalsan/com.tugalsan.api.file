@@ -13,7 +13,7 @@ public class TS_RootUtils {
             var store = Files.getFileStore(root);
             return TGS_Union.of(store.getUsableSpace());
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
@@ -22,7 +22,7 @@ public class TS_RootUtils {
             var store = Files.getFileStore(root);
             return TGS_Union.of(store.getTotalSpace());
         } catch (IOException ex) {
-            return TGS_Union.ofThrowable(ex);
+            return TGS_Union.ofExcuse(ex);
         }
     }
 
