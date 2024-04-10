@@ -2,7 +2,7 @@ package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.list.client.TGS_ListUtils;
 import com.tugalsan.api.log.server.TS_Log;
-import com.tugalsan.api.union.client.TGS_Union;
+import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,12 +15,12 @@ public class TS_FileSync {
 
     final private static TS_Log d = TS_Log.of(TS_FileSync.class);
 
-    public static void mirror(String src, String dst)  {
+    public static void mirror(String src, String dst) {
         TS_FileSync.sync(src, dst);
         TS_FileSync.clean(src, dst);
     }
 
-    public static void clean(String fromPath, String toPath)  {
+    public static void clean(String fromPath, String toPath) {
         var fromFile = new File(fromPath);
         var toFile = new File(toPath);
         for (var file : fromFile.listFiles()) {
@@ -39,7 +39,7 @@ public class TS_FileSync {
         }
     }
 
-    private static void cleanFile(File file, File toFile)  {
+    private static void cleanFile(File file, File toFile) {
         if (file.getName().startsWith(".")) {
             return;
         }
@@ -49,8 +49,8 @@ public class TS_FileSync {
         }
     }
 
-    public static List<TGS_Union<Boolean>> sync(String fromPath, String toPath) {
-        List<TGS_Union<Boolean>> results = TGS_ListUtils.of();
+    public static List<TGS_UnionExcuse> sync(String fromPath, String toPath) {
+        List<TGS_UnionExcuse> results = TGS_ListUtils.of();
         var fromFile = new File(fromPath);
         var toFile = new File(toPath);
         for (var file : fromFile.listFiles()) {
@@ -69,16 +69,16 @@ public class TS_FileSync {
         return results;
     }
 
-    private static TGS_Union<Boolean> syncFile(File from, File to) {
+    private static TGS_UnionExcuse syncFile(File from, File to) {
         if (from.getName().startsWith(".")) {
-            return TGS_Union.of(false);
+            return TGS_UnionExcuse.ofExcuse(d.className, "syncFile", "file starts with '.'");
         }
         var chksumFrom = TS_FileUtils.getChecksumLng(from.toPath()).orElse(-1L);
         if (chksumFrom != -1) {
             var chksumTo = TS_FileUtils.getChecksumLng(to.toPath()).orElse(-1L);
             if (chksumTo != -1) {
                 if (Objects.equals(chksumFrom, chksumTo)) {
-                    return TGS_Union.of(true);
+                    return TGS_UnionExcuse.ofVoid();
                 }
             }
         }
@@ -90,9 +90,9 @@ public class TS_FileSync {
                 out.write(buffer, 0, len);
                 len = in.read(buffer);
             }
-            return TGS_Union.of(true);
+            return TGS_UnionExcuse.ofVoid();
         } catch (IOException ex) {
-            return TGS_Union.ofExcuse(ex);
+            return TGS_UnionExcuse.ofExcuse(ex);
         }
     }
 }
