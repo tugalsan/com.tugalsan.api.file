@@ -8,7 +8,7 @@ import java.util.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
-import com.tugalsan.api.union.client.TGS_Union;
+import com.tugalsan.api.union.client.TGS_UnionExcuse;
 
 public class TS_PathUtils {
 
@@ -46,38 +46,38 @@ public class TS_PathUtils {
         return path.getParent();
     }
 
-    public static TGS_Union<Path> toPathOrError(CharSequence fileOrDirectory) {
+    public static TGS_UnionExcuse<Path> toPathOrError(CharSequence fileOrDirectory) {
         var path = fileOrDirectory.toString();
         var isURL = path.contains("://");
         if (isURL && !TGS_CharSetCast.toLocaleLowerCase(path).startsWith("file:")) {
             d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
-            return TGS_Union.ofExcuse(d.className, "toPathAndError",
+            return TGS_UnionExcuse.ofExcuse(d.className, "toPathAndError",
                     "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
             );
         }
-        return TGS_Union.of(isURL ? Path.of(URI.create(path)) : Path.of(path));
+        return TGS_UnionExcuse.of(isURL ? Path.of(URI.create(path)) : Path.of(path));
     }
 
-    public static TGS_Union<Path> of(String path) {
+    public static TGS_UnionExcuse<Path> of(String path) {
         if (TGS_StringUtils.isNullOrEmpty(path)) {
-            return TGS_Union.ofEmpty_NullPointerException();
+            return TGS_UnionExcuse.ofEmpty_NullPointerException();
         }
         try {
-            return TGS_Union.of(Path.of(path));
+            return TGS_UnionExcuse.of(Path.of(path));
         } catch (FileSystemNotFoundException | SecurityException | IllegalArgumentException e) {
-            return TGS_Union.ofExcuse(e);
+            return TGS_UnionExcuse.ofExcuse(e);
         }
     }
 
-    public static TGS_Union<Path> of(URL u) {
+    public static TGS_UnionExcuse<Path> of(URL u) {
         try {
-            return TGS_Union.of(Path.of(u.toURI()));
+            return TGS_UnionExcuse.of(Path.of(u.toURI()));
         } catch (URISyntaxException ex) {
-            return TGS_Union.ofExcuse(ex);
+            return TGS_UnionExcuse.ofExcuse(ex);
         }
     }
 
-    public static TGS_Union<Path> of(Class c) {
+    public static TGS_UnionExcuse<Path> of(Class c) {
         return of(c.getProtectionDomain().getCodeSource().getLocation());
     }
 
@@ -89,20 +89,20 @@ public class TS_PathUtils {
         return parentPath.endsWith(File.separator) ? parentPath + parentPathDependentChildPath : parentPath + File.separator + parentPathDependentChildPath;
     }
 
-    public static TGS_Union<String> substract(String from_childFullPath, String to_parentPath) {
+    public static TGS_UnionExcuse<String> substract(String from_childFullPath, String to_parentPath) {
         try {
-            return TGS_Union.of(from_childFullPath.substring(to_parentPath.length() + 1));
+            return TGS_UnionExcuse.of(from_childFullPath.substring(to_parentPath.length() + 1));
         } catch (IndexOutOfBoundsException e) {
-            return TGS_Union.ofExcuse(e);
+            return TGS_UnionExcuse.ofExcuse(e);
         }
     }
 
-    public static TGS_Union<String> getDriveLetter(Path path) {
+    public static TGS_UnionExcuse<String> getDriveLetter(Path path) {
         var root = path.getRoot();
         if (root == null) {
-            return TGS_Union.ofEmpty_NullPointerException();
+            return TGS_UnionExcuse.ofEmpty_NullPointerException();
         }
-        return TGS_Union.of(path.toString());
+        return TGS_UnionExcuse.of(path.toString());
     }
 
     public static boolean contains(List<Path> sources, Path searchFor) {

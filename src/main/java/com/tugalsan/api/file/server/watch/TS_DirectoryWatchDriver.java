@@ -5,7 +5,7 @@ import com.tugalsan.api.runnable.client.TGS_RunnableType1;
 import com.tugalsan.api.file.server.TS_FileWatchUtils;
 import com.tugalsan.api.file.server.TS_FileWatchUtils.Triggers;
 import com.tugalsan.api.log.server.TS_Log;
-import com.tugalsan.api.union.client.TGS_Union;
+import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.server.TS_UnionUtils;
 import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -71,25 +71,25 @@ public class TS_DirectoryWatchDriver {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TGS_Union<TS_DirectoryWatchDriver> of(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+    public static TGS_UnionExcuse<TS_DirectoryWatchDriver> of(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
         try {
-            return TGS_Union.of(new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
+            return TGS_UnionExcuse.of(new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
         } catch (IOException ex) {
-            return TGS_Union.ofExcuse(ex);
+            return TGS_UnionExcuse.ofExcuse(ex);
         }
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TGS_Union<TS_DirectoryWatchDriver> ofRecursive(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+    public static TGS_UnionExcuse<TS_DirectoryWatchDriver> ofRecursive(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
         try {
-            return TGS_Union.of(new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
+            return TGS_UnionExcuse.of(new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
         } catch (IOException ex) {
-            return TGS_Union.ofExcuse(ex);
+            return TGS_UnionExcuse.ofExcuse(ex);
         }
     }
 
     @Deprecated //PATH AS FILENAME?
-    public static TGS_Union<TS_DirectoryWatchDriver> ofFile(Path file, TGS_Runnable exe) {
+    public static TGS_UnionExcuse<TS_DirectoryWatchDriver> ofFile(Path file, TGS_Runnable exe) {
         return TS_DirectoryWatchDriver.of(file.getParent(), forFile -> {
             if (forFile.equals(file)) {
                 exe.run();

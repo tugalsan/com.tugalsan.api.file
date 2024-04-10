@@ -2,7 +2,7 @@ package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.list.client.TGS_ListUtils;
 import com.tugalsan.api.log.server.TS_Log;
-import com.tugalsan.api.union.client.TGS_UnionExcuse;
+import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -49,8 +49,8 @@ public class TS_FileSync {
         }
     }
 
-    public static List<TGS_UnionExcuse> sync(String fromPath, String toPath) {
-        List<TGS_UnionExcuse> results = TGS_ListUtils.of();
+    public static List<TGS_UnionExcuseVoid> sync(String fromPath, String toPath) {
+        List<TGS_UnionExcuseVoid> results = TGS_ListUtils.of();
         var fromFile = new File(fromPath);
         var toFile = new File(toPath);
         for (var file : fromFile.listFiles()) {
@@ -69,16 +69,16 @@ public class TS_FileSync {
         return results;
     }
 
-    private static TGS_UnionExcuse syncFile(File from, File to) {
+    private static TGS_UnionExcuseVoid syncFile(File from, File to) {
         if (from.getName().startsWith(".")) {
-            return TGS_UnionExcuse.ofExcuse(d.className, "syncFile", "file starts with '.'");
+            return TGS_UnionExcuseVoid.ofExcuse(d.className, "syncFile", "file starts with '.'");
         }
         var chksumFrom = TS_FileUtils.getChecksumLng(from.toPath()).orElse(-1L);
         if (chksumFrom != -1) {
             var chksumTo = TS_FileUtils.getChecksumLng(to.toPath()).orElse(-1L);
             if (chksumTo != -1) {
                 if (Objects.equals(chksumFrom, chksumTo)) {
-                    return TGS_UnionExcuse.ofVoid();
+                    return TGS_UnionExcuseVoid.ofVoid();
                 }
             }
         }
@@ -90,9 +90,9 @@ public class TS_FileSync {
                 out.write(buffer, 0, len);
                 len = in.read(buffer);
             }
-            return TGS_UnionExcuse.ofVoid();
+            return TGS_UnionExcuseVoid.ofVoid();
         } catch (IOException ex) {
-            return TGS_UnionExcuse.ofExcuse(ex);
+            return TGS_UnionExcuseVoid.ofExcuse(ex);
         }
     }
 }
