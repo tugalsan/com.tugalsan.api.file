@@ -167,8 +167,8 @@ public class TS_FileUtils {
 
     public static TGS_Union<Boolean> isEmptyFile(Path file) {
         var u = getFileSizeInBytes(file);
-        if (u.isEmpty()) {
-            return TGS_Union.ofExcuse(u.excuse());
+        if (u.isExcuse()) {
+            return u.toExcuse();
         }
         return TGS_Union.of(u.value() == 0L);
     }

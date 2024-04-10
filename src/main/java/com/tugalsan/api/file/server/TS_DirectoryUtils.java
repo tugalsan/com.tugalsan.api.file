@@ -318,7 +318,7 @@ public class TS_DirectoryUtils {
             }
             var u_subDirectories = subDirectories(directory, false, true);
             if (u_subDirectories.isExcuse()) {
-                return TGS_Union.ofExcuse(u_subDirectories.excuse());
+                return u_subDirectories.toExcuse();
             }
             var subDirectories = u_subDirectories.value();
             var r = (parallel ? subDirectories.parallelStream() : subDirectories.stream())
@@ -364,7 +364,7 @@ public class TS_DirectoryUtils {
     public static TGS_Union<List<Path>> subFiles(Path parentDirectory, CharSequence fileNameMatcher, boolean sorted, boolean recursive) {
         var u = subFiles2(parentDirectory, fileNameMatcher, sorted, recursive);
         if (u.isExcuse()) {
-            return TGS_Union.ofExcuse(u.excuse());
+            return u.toExcuse();
         }
         return TGS_Union.of(
                 TGS_StreamUtils.toLst(
@@ -435,7 +435,7 @@ public class TS_DirectoryUtils {
     public static TGS_Union<List<String>> subDirectories2(Path parentDirectory, boolean sorted, boolean recursive) {
         var u = subDirectories(parentDirectory, sorted, recursive);
         if (u.isExcuse()) {
-            return TGS_Union.ofExcuse(u.excuse());
+            return u.toExcuse();
         }
         return TGS_Union.of(
                 TGS_StreamUtils.toLst(
