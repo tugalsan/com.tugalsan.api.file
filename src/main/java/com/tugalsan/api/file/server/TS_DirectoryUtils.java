@@ -211,14 +211,14 @@ public class TS_DirectoryUtils {
         return TGS_UnionExcuseVoid.ofVoid();
     }
 
-    public static void deleteSubDirectories_withBat(Path parentDirectory) {
+    public static TGS_UnionExcuse<TS_OsProcess> deleteSubDirectories_withBat(Path parentDirectory) {
         d.cr("deleteSubDirectories", "by bat", parentDirectory);
         var batCode = new StringJoiner("\n");
         batCode.add(TS_PathUtils.getDriveLetter(parentDirectory) + ":");
         batCode.add("cd " + parentDirectory.toAbsolutePath().toString());
         batCode.add("FOR /d /r . %%d IN (backdrops) DO @IF EXIST \"%%d\" rd /s /q \"%%d\"");
         d.cr("deleteSubDirectories", "batCode", batCode);
-        TS_OsProcess.ofCode(batCode.toString(), TS_OsProcess.CodeType.BAT);
+        return TS_OsProcess.ofCode(batCode.toString(), TS_OsProcess.CodeType.BAT).toUnion();
     }
 
     public static TGS_UnionExcuseVoid deleteSubFiles(Path parentDirectory, String fileNameMatcher, boolean parallel) {
