@@ -326,17 +326,16 @@ public class TS_FileUtils {
         return Path.of(strDst);
     }
 
-    public static String mime(Path img) {
+    public static TGS_UnionExcuse<String> mime(Path img) {
         var typ = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(img));
         if (TGS_StringUtils.isPresent(typ) && typ.length() < 5) {
-            return typ.replace(";charset=UTF-8", "");
+            return TGS_UnionExcuse.of(typ.replace(";charset=UTF-8", ""));
         }
         try {
             var url = img.toUri().toURL();
-            return url.openConnection().getContentType()
-                    .replace(";charset=UTF-8", "");
+            return TGS_UnionExcuse.of(url.openConnection().getContentType().replace(";charset=UTF-8", ""));
         } catch (IOException ex) {
-            return typ;
+            return TGS_UnionExcuse.ofExcuse(ex);
         }
     }
 
