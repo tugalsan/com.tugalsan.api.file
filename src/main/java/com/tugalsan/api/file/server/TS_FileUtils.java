@@ -334,7 +334,7 @@ public class TS_FileUtils {
         try {
             var url = img.toUri().toURL();
             return TGS_UnionExcuse.of(url.openConnection().getContentType().replace(";charset=UTF-8", ""));
-        } catch (IOException ex) {
+        } catch (IOException | SecurityException | IllegalArgumentException ex) {
             return TGS_UnionExcuse.ofExcuse(ex);
         }
     }
