@@ -1,7 +1,6 @@
 package com.tugalsan.api.file.client;
 
 import com.tugalsan.api.list.client.*;
-import com.tugalsan.api.tuple.client.*;
 import java.util.*;
 
 public class TGS_FileUtilsTur {
@@ -13,8 +12,8 @@ public class TGS_FileUtilsTur {
     public static String toSafe(CharSequence fileName, char safeDefaultChar) {
         var fileNameStr = fileName.toString();
         for (var i = 0; i < SAFE_PAIRS().size(); i++) {
-            if (fileNameStr.indexOf(SAFE_PAIRS().get(i).value0) != -1) {
-                fileNameStr = fileNameStr.replace(SAFE_PAIRS().get(i).value0, SAFE_PAIRS().get(i).value1);
+            if (fileNameStr.indexOf(SAFE_PAIRS().get(i).unsafe()) != -1) {
+                fileNameStr = fileNameStr.replace(SAFE_PAIRS().get(i).unsafe(), SAFE_PAIRS().get(i).safe());
             }
         }
         for (var i = 0; i < fileNameStr.length(); i++) {
@@ -44,11 +43,12 @@ public class TGS_FileUtilsTur {
         return SAFE_DEFAULT_CHAR_AS_STR() + SAFE_DEFAULT_CHAR_AS_STR();
     }
 
-    public static List<TGS_Tuple2<Character, Character>> SAFE_PAIRS() {
+    public static List<TGS_FileUtilsPair> SAFE_PAIRS() {
         return TGS_ListUtils.of(
-                new TGS_Tuple2('ƒ', 's'),
-                new TGS_Tuple2('{', '('), new TGS_Tuple2('}', ')'),
-                new TGS_Tuple2('[', '('), new TGS_Tuple2(']', ')')
+                new TGS_FileUtilsPair('ƒ', 's'),
+                new TGS_FileUtilsPair('{', '('), new TGS_FileUtilsPair('}', ')'),
+                new TGS_FileUtilsPair('[', '('), new TGS_FileUtilsPair(']', ')')
         );
     }
+
 }

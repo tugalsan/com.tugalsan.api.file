@@ -7,7 +7,6 @@ import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
 import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
 import com.tugalsan.api.time.client.TGS_Time;
-import com.tugalsan.api.tuple.client.TGS_Tuple2;
 import com.tugalsan.api.union.server.TS_UnionUtils;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -97,23 +96,23 @@ public class TS_FileWatchUtils {
                 while (kt.hasNotTriggered() && (key = watchService.take()) != null) {
                     for (WatchEvent<?> event : key.pollEvents()) {
                         var detectedFile = (Path) event.context();
-                        if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.value1)) {//IF INIT
-                            directoryBuffer.value0 = TGS_Time.of();
-                            directoryBuffer.value1 = detectedFile;
+                        if (directoryBuffer.isEmpty() || !detectedFile.equals(directoryBuffer.path)) {//IF INIT
+                            directoryBuffer.time = TGS_Time.of();
+                            directoryBuffer.path = detectedFile;
                             filename.run(TS_FileUtils.getNameFull(detectedFile));
-                            d.ci("directory", "new", directoryBuffer.value1);
+                            d.ci("directory", "new", directoryBuffer.path);
                             continue;
                         }
                         var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
                         {//SKIP IF DOUBLE NOTIFY
-                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
-                                d.ci("directory", "skipped", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                            if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.time)) {
+                                d.ci("directory", "skipped", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.time);
                                 continue;
                             }
                         }
                         {//NOTIFY
-                            directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
-                            d.ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                            directoryBuffer.time = oneSecondAgo.incrementSecond(1);
+                            d.ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.time);
                             filename.run(TS_FileUtils.getNameFull(detectedFile));
                         }
                     }
@@ -126,5 +125,15 @@ public class TS_FileWatchUtils {
         });
         return true;
     }
-    private static final TGS_Tuple2<TGS_Time, Path> directoryBuffer = TGS_Tuple2.of();
+    private static final DirectoryBuffer directoryBuffer = new DirectoryBuffer();
+
+    private static class DirectoryBuffer {
+
+        public TGS_Time time;
+        public Path path;
+
+        public boolean isEmpty() {
+            return time == null;
+        }
+    }
 }
