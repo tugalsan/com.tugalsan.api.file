@@ -73,9 +73,9 @@ public class TS_FileSync {
         if (from.getName().startsWith(".")) {
             return TGS_UnionExcuseVoid.ofExcuse(d.className, "syncFile", "file starts with '.'");
         }
-        var chksumFrom = TS_FileUtils.getChecksumLng(from.toPath()).orElse(-1L);
+        var chksumFrom = TS_FileUtils.getChecksumLng(from.toPath()).orElse(excuse->-1L);
         if (chksumFrom != -1) {
-            var chksumTo = TS_FileUtils.getChecksumLng(to.toPath()).orElse(-1L);
+            var chksumTo = TS_FileUtils.getChecksumLng(to.toPath()).orElse(excuse->-1L);
             if (chksumTo != -1) {
                 if (Objects.equals(chksumFrom, chksumTo)) {
                     return TGS_UnionExcuseVoid.ofVoid();

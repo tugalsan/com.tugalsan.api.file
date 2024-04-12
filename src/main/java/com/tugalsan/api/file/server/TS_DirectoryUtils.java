@@ -82,7 +82,7 @@ public class TS_DirectoryUtils {
             return TGS_UnionExcuseVoid.ofVoid();
         }
 
-        if (!isExistDirectory(asDestFolder) || isEmptyDirectory(asDestFolder).orElse(false)) {
+        if (!isExistDirectory(asDestFolder) || isEmptyDirectory(asDestFolder).orElse(excuse -> false)) {
             return TS_FileUtils.moveAs(sourceFolder, asDestFolder, overwrite);
         }
 
@@ -313,7 +313,7 @@ public class TS_DirectoryUtils {
             if (!isExistDirectory(directory)) {
                 return TGS_UnionExcuse.of(false);
             }
-            if (isEmptyDirectory(directory, false, false).orElse(false)) {
+            if (isEmptyDirectory(directory, false, false).orElse(excuse -> false)) {
                 return TGS_UnionExcuse.of(true);
             }
             var u_subDirectories = subDirectories(directory, false, true);
@@ -322,7 +322,7 @@ public class TS_DirectoryUtils {
             }
             var subDirectories = u_subDirectories.value();
             var r = (parallel ? subDirectories.parallelStream() : subDirectories.stream())
-                    .filter(p -> isEmptyDirectory(directory, false, false).orElse(false) == false)
+                    .filter(p -> isEmptyDirectory(directory, false, false).orElse(excuse -> false) == false)
                     .findAny();
             return TGS_UnionExcuse.of(!r.isPresent());
         }
@@ -340,7 +340,7 @@ public class TS_DirectoryUtils {
 
     public static TGS_UnionExcuseVoid deleteDirectoryIfExistsIfEmpty(Path directory, boolean recursive) {
         if (recursive) {
-            if (!isEmptyDirectory(directory, true, false).orElse(false)) {
+            if (!isEmptyDirectory(directory, true, false).orElse(excuse -> false)) {
                 return TGS_UnionExcuseVoid.ofExcuse(d.className, "deleteDirectoryIfExistsIfEmpty", "folder is not empty");
             }
             return deleteDirectoryIfExists(directory);
