@@ -1,6 +1,7 @@
 package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.charset.client.TGS_CharSet;
+import com.tugalsan.api.charset.client.TGS_CharSetCast;
 import java.io.*;
 import java.util.*;
 import java.nio.file.*;
@@ -213,7 +214,7 @@ public class TS_DirectoryUtils {
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
                     return TGS_UnSafe.call(() -> {
                         d.ci("postVisitDirectory", dir);
-                        if (TGS_CharSet.cmn().languageDefault().equalsIgnoreCase(dir.toAbsolutePath().toString(), pathStr)) {
+                        if (TGS_CharSetCast.current().equalsIgnoreCase(dir.toAbsolutePath().toString(), pathStr)) {
                             return FileVisitResult.CONTINUE;
                         }
                         Files.delete(dir);
@@ -339,8 +340,8 @@ public class TS_DirectoryUtils {
             } else {
                 var fileNameMatcherStr = fileNameMatcher.toString();
                 var matcher = FileSystems.getDefault().getPathMatcher("glob:**/" + fileNameMatcherStr);//"glob:*.java" or glob:**/*.java;
-                var matcherUP = FileSystems.getDefault().getPathMatcher("glob:**/" + TGS_CharSet.cmn().languageDefault().toUpperCase(fileNameMatcherStr));//"glob:*.java" or glob:**/*.java;
-                var matcherDW = FileSystems.getDefault().getPathMatcher("glob:**/" + TGS_CharSet.cmn().languageDefault().toUpperCase(fileNameMatcherStr));//"glob:*.java" or glob:**/*.java;
+                var matcherUP = FileSystems.getDefault().getPathMatcher("glob:**/" + TGS_CharSetCast.current().toUpperCase(fileNameMatcherStr));//"glob:*.java" or glob:**/*.java;
+                var matcherDW = FileSystems.getDefault().getPathMatcher("glob:**/" + TGS_CharSetCast.current().toUpperCase(fileNameMatcherStr));//"glob:*.java" or glob:**/*.java;
                 if (recursive) {
                     subFiles = TGS_StreamUtils.toLst(
                             Files.walk(parentDirectory)

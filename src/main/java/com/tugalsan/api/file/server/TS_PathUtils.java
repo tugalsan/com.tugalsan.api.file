@@ -1,6 +1,7 @@
 package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.charset.client.TGS_CharSet;
+import com.tugalsan.api.charset.client.TGS_CharSetCast;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
@@ -51,7 +52,7 @@ public class TS_PathUtils {
         return TGS_UnSafe.call(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
-            if (isURL && !TGS_CharSet.cmn().languageDefault().toLowerCase(path).startsWith("file:")) {
+            if (isURL && !TGS_CharSetCast.current().toLowerCase(path).startsWith("file:")) {
                 d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
                 return new TGS_Tuple2(null, TGS_UnSafe.toRuntimeException(d.className, "toPathAndError",
                         "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
