@@ -1,6 +1,5 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.charset.client.TGS_CharSet;
 import com.tugalsan.api.charset.client.TGS_CharSetCast;
 import java.io.*;
 import java.util.*;
@@ -10,6 +9,7 @@ import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
+import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
 import com.tugalsan.api.validator.client.TGS_ValidatorType1;
 
@@ -169,11 +169,11 @@ public class TS_DirectoryUtils {
         });
     }
 
-    public static boolean deleteDirectoryIfExists(Path path) {
+    public static TGS_UnionExcuseVoid deleteDirectoryIfExists(Path path) {
         return deleteDirectoryIfExists(path, false);
     }
 
-    public static boolean deleteDirectoryIfExists(Path path, boolean dontDeleteSelfDirectory) {
+    public static TGS_UnionExcuseVoid deleteDirectoryIfExists(Path path, boolean dontDeleteSelfDirectory) {
         return TGS_UnSafe.call(() -> {
             if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
                 try (var entries = Files.newDirectoryStream(path)) {
@@ -185,10 +185,9 @@ public class TS_DirectoryUtils {
             if (!dontDeleteSelfDirectory) {
                 Files.delete(path);
             }
-            return true;
+            return TGS_UnionExcuseVoid.ofVoid();
         }, e -> {
-            e.printStackTrace();
-            return false;
+            return TGS_UnionExcuseVoid.ofExcuse(e);
         });
     }
 
@@ -240,16 +239,15 @@ public class TS_DirectoryUtils {
         return directory != null && Files.isDirectory(directory) && Files.exists(directory);
     }
 
-    public static boolean createDirectoriesIfNotExists(Path directory) {
+    public static TGS_UnionExcuseVoid createDirectoriesIfNotExists(Path directory) {
         return TGS_UnSafe.call(() -> {
             if (!isExistDirectory(directory)) {
                 directory.toFile().mkdirs();
                 //return Files.createDirectories(directory);//BUGGY
             }
-            return true;
+            return TGS_UnionExcuseVoid.ofVoid();
         }, e -> {
-            e.printStackTrace();
-            return false;
+            return TGS_UnionExcuseVoid.ofExcuse(e);
         });
     }
 
@@ -279,23 +277,22 @@ public class TS_DirectoryUtils {
         });
     }
 
-    public static boolean deleteDirectoryIfExistsIfEmpty(Path directory) {
+    public static TGS_UnionExcuseVoid deleteDirectoryIfExistsIfEmpty(Path directory) {
         return deleteDirectoryIfExistsIfEmpty(directory, false);
     }
 
-    public static boolean deleteDirectoryIfExistsIfEmpty(Path directory, boolean recursive) {
+    public static TGS_UnionExcuseVoid deleteDirectoryIfExistsIfEmpty(Path directory, boolean recursive) {
         return TGS_UnSafe.call(() -> {
             if (recursive) {
                 if (!isEmptyDirectory(directory, true, false)) {
-                    return false;
+                    return TGS_UnionExcuseVoid.ofExcuse(d.className, "deleteDirectoryIfExistsIfEmpty", "!isEmptyDirectory(directory, true, false)");
                 }
                 return deleteDirectoryIfExists(directory);
             }
             Files.deleteIfExists(directory);
-            return true;
+            return TGS_UnionExcuseVoid.ofVoid();
         }, e -> {
-            e.printStackTrace();
-            return false;
+            return TGS_UnionExcuseVoid.ofExcuse(e);
         });
     }
 

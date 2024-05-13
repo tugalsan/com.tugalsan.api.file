@@ -9,6 +9,7 @@ import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
+import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
 import java.net.URLConnection;
 import java.util.zip.CRC32;
@@ -120,22 +121,15 @@ public class TS_FileUtils {
         return getFileSizeInBytes(file) == 0L;
     }
 
-    public static boolean deleteFileIfExists(Path file) {
-        return deleteFileIfExists(file, true);
-    }
-
-    public static boolean deleteFileIfExists(Path file, boolean printStackTrace) {
+    public static TGS_UnionExcuseVoid deleteFileIfExists(Path file) {
         return TGS_UnSafe.call(() -> {
             if (!isExistFile(file)) {
-                return true;
+                return TGS_UnionExcuseVoid.ofVoid();
             }
             Files.deleteIfExists(file);
-            return !isExistFile(file);
-        }, exception -> {
-            if (printStackTrace) {
-                exception.printStackTrace();
-            }
-            return false;
+            return TGS_UnionExcuseVoid.ofVoid();
+        }, e -> {
+            return TGS_UnionExcuseVoid.ofExcuse(e);
         });
     }
 

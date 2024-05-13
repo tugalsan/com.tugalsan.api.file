@@ -2,6 +2,7 @@ module com.tugalsan.api.file {
     requires java.xml.bind;
     requires com.tugalsan.api.list;
     requires com.tugalsan.api.unsafe;
+    requires com.tugalsan.api.union;
     requires com.tugalsan.api.validator;
     requires com.tugalsan.api.callable;
     requires com.tugalsan.api.runnable;

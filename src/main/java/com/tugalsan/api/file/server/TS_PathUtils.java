@@ -1,6 +1,5 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.charset.client.TGS_CharSet;
 import com.tugalsan.api.charset.client.TGS_CharSetCast;
 import java.io.*;
 import java.net.*;
@@ -10,6 +9,7 @@ import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.tuple.client.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
+import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.unsafe.client.*;
 
 public class TS_PathUtils {
@@ -65,15 +65,14 @@ public class TS_PathUtils {
         });
     }
 
-    public static Path of(String path) {
+    public static TGS_UnionExcuse<Path> of(String path) {
         return TGS_UnSafe.call(() -> {
             if (TGS_StringUtils.isNullOrEmpty(path)) {
-                return null;
+                return TGS_UnionExcuse.ofExcuse(d.className, "of", "TGS_StringUtils.isNullOrEmpty(path)");
             }
-            return Path.of(path);
+            return TGS_UnionExcuse.of(Path.of(path));
         }, e -> {
-            e.printStackTrace();
-            return null;
+            return TGS_UnionExcuse.ofExcuse(e);
         });
     }
 
