@@ -9,6 +9,7 @@ import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
+import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
 import java.net.URLConnection;
@@ -232,25 +233,25 @@ public class TS_FileUtils {
     }
 
     @SuppressWarnings("empty-statement")
-    public static Optional<Long> getChecksumLng(Path file) {
+    public static TGS_UnionExcuse<Long> getChecksumLng(Path file) {
         return TGS_UnSafe.call(() -> {
             try (var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
                 var bytes = new byte[1024];
                 while (in.read(bytes) >= 0)
 			;
-                return Optional.of(in.getChecksum().getValue());
+                return TGS_UnionExcuse.of(in.getChecksum().getValue());
             }
         }, e -> {
-            return Optional.empty();
+            return TGS_UnionExcuse.ofExcuse(e);
         });
     }
 
-    public static Optional<String> getChecksumHex(Path file) {
+    public static TGS_UnionExcuse<String> getChecksumHex(Path file) {
         return TGS_UnSafe.call(() -> {
             var bytes = Files.readAllBytes(file);
             var hash = MessageDigest.getInstance("MD5").digest(bytes);
-            return Optional.of(DatatypeConverter.printHexBinary(hash));
-        }, e -> Optional.empty());//POSSIBLY ACCESS DENIED EXCEPTION
+            return TGS_UnionExcuse.of(DatatypeConverter.printHexBinary(hash));
+        }, e -> TGS_UnionExcuse.ofExcuse(e));//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
     public static Path rename(Path source, CharSequence newFileName) {

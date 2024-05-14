@@ -67,7 +67,7 @@ public class TS_FileSync {
             if (file.getName().startsWith(".")) {
                 return true;
             }
-            if (Objects.equals(TS_FileUtils.getChecksumLng(file.toPath()).get(), TS_FileUtils.getChecksumLng(toFile.toPath()).get())) {
+            if (Objects.equals(TS_FileUtils.getChecksumLng(file.toPath()).value(), TS_FileUtils.getChecksumLng(toFile.toPath()).value())) {
                 return true;
             }
             System.out.println(file + " -- sync --> " + toFile);
