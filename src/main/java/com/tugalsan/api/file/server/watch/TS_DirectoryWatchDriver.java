@@ -1,7 +1,7 @@
 package com.tugalsan.api.file.server.watch;
 
-import com.tugalsan.api.runnable.client.TGS_Runnable;
-import com.tugalsan.api.runnable.client.TGS_RunnableType1;
+import com.tugalsan.api.callable.client.TGS_CallableType0Void;
+import com.tugalsan.api.callable.client.TGS_CallableType1Void;
 import com.tugalsan.api.file.server.TS_FileWatchUtils;
 import com.tugalsan.api.file.server.TS_FileWatchUtils.Triggers;
 import com.tugalsan.api.log.server.TS_Log;
@@ -50,7 +50,7 @@ public class TS_DirectoryWatchDriver {
         });
     }
 
-    private TS_DirectoryWatchDriver(Path dir, TGS_RunnableType1<Path> forFile, boolean recursive, TS_FileWatchUtils.Triggers... triggers) throws IOException {
+    private TS_DirectoryWatchDriver(Path dir, TGS_CallableType1Void<Path> forFile, boolean recursive, TS_FileWatchUtils.Triggers... triggers) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap();
         this.recursive = recursive;
@@ -66,17 +66,17 @@ public class TS_DirectoryWatchDriver {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver of(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+    public static TS_DirectoryWatchDriver of(Path dir, TGS_CallableType1Void<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
         return TGS_UnSafe.call(() -> new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_RunnableType1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+    public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_CallableType1Void<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
         return TGS_UnSafe.call(() -> new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
     }
 
     @Deprecated //PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver ofFile(Path file, TGS_Runnable exe) {
+    public static TS_DirectoryWatchDriver ofFile(Path file, TGS_CallableType0Void exe) {
         return TS_DirectoryWatchDriver.of(file.getParent(), forFile -> {
             if (forFile.equals(file)) {
                 exe.run();
@@ -84,7 +84,7 @@ public class TS_DirectoryWatchDriver {
         });
     }
 
-    private void processEvents(TGS_RunnableType1<Path> forFile) {
+    private void processEvents(TGS_CallableType1Void<Path> forFile) {
         while (true) {
             WatchKey key;
             try {
