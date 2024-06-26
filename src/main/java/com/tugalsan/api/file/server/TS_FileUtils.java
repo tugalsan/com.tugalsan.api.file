@@ -267,7 +267,7 @@ public class TS_FileUtils {
 
     public static String mime(Path img) {
         var typ = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(img));
-        if (TGS_StringUtils.isPresent(typ) && typ.length() < 5) {
+        if (TGS_StringUtils.cmn().isPresent(typ) && typ.length() < 5) {
             return typ.replace(";charset=UTF-8", "");
         }
         return TGS_UnSafe.call(() -> {

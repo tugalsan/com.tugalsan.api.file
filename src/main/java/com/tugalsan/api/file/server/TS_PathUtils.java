@@ -67,8 +67,8 @@ public class TS_PathUtils {
 
     public static TGS_UnionExcuse<Path> of(String path) {
         return TGS_UnSafe.call(() -> {
-            if (TGS_StringUtils.isNullOrEmpty(path)) {
-                return TGS_UnionExcuse.ofExcuse(d.className, "of", "TGS_StringUtils.isNullOrEmpty(path)");
+            if (TGS_StringUtils.cmn().isNullOrEmpty(path)) {
+                return TGS_UnionExcuse.ofExcuse(d.className, "of", "TGS_StringUtils.cmn().isNullOrEmpty(path)");
             }
             return TGS_UnionExcuse.of(Path.of(path));
         }, e -> {
