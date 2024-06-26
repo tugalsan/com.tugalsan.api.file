@@ -1,7 +1,7 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.callable.client.TGS_CallableType0Void;
-import com.tugalsan.api.callable.client.TGS_CallableType1Void;
+import com.tugalsan.api.callable.client.TGS_CallableType0_Run;
+import com.tugalsan.api.callable.client.TGS_CallableType1_Run;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
@@ -25,7 +25,7 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_CallableType0Void exe, Triggers... types) {
+    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_CallableType0_Run exe, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         AtomicReference<TGS_Time> lastProcessedFile_lastModified = new AtomicReference();
         return directory(killTrigger, targetFile.getParent(), filename -> {
@@ -74,7 +74,7 @@ public class TS_FileWatchUtils {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static boolean directoryRecursive(Path directory, TGS_CallableType1Void<Path> file, Triggers... types) {
+    public static boolean directoryRecursive(Path directory, TGS_CallableType1_Run<Path> file, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
@@ -83,7 +83,7 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_CallableType1Void<String> filename, Triggers... types) {
+    public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_CallableType1_Run<String> filename, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;

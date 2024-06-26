@@ -1,5 +1,6 @@
 package com.tugalsan.api.file.server;
 
+import com.tugalsan.api.callable.client.TGS_CallableType1_Validate;
 import com.tugalsan.api.charset.client.TGS_CharSetCast;
 import java.io.*;
 import java.util.*;
@@ -11,7 +12,6 @@ import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
-import com.tugalsan.api.validator.client.TGS_ValidatorType1;
 
 public class TS_DirectoryUtils {
 
@@ -94,7 +94,7 @@ public class TS_DirectoryUtils {
     }
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
-            TGS_ValidatorType1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
+            TGS_CallableType1_Validate<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
         d.cr("copyDirectory.i", sourceFolder, asDestFolder, overwrite);
         var dstDirPrefix = asDestFolder.toAbsolutePath().toString();
         var subDirectories = subDirectories(sourceFolder, false, false);
@@ -110,7 +110,7 @@ public class TS_DirectoryUtils {
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
-            TGS_ValidatorType1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
+            TGS_CallableType1_Validate<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
         d.cr("copyFiles.i", sourceFolder, destFolder, overwrite);
         createDirectoriesIfNotExists(destFolder);
         var dstFilePrefix = destFolder.toAbsolutePath().toString();
