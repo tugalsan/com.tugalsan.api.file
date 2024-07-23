@@ -10,6 +10,7 @@ import com.tugalsan.api.list.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
+import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
 
@@ -237,6 +238,14 @@ public class TS_DirectoryUtils {
 
     public static boolean isExistDirectory(Path directory) {
         return directory != null && Files.isDirectory(directory) && Files.exists(directory);
+    }
+
+    public static TGS_UnionExcuse<Path> createDirectoryTemp(String prefix) {
+        try {
+            return TGS_UnionExcuse.of(Files.createTempDirectory(prefix).toAbsolutePath());
+        } catch (IOException ex) {
+            return TGS_UnionExcuse.ofExcuse(ex);
+        }
     }
 
     public static TGS_UnionExcuseVoid createDirectoriesIfNotExists(Path directory) {
