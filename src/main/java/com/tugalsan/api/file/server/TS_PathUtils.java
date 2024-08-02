@@ -6,7 +6,6 @@ import java.net.*;
 import java.nio.file.*;
 import java.util.*;
 import com.tugalsan.api.log.server.*;
-import com.tugalsan.api.tuple.client.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
@@ -48,20 +47,20 @@ public class TS_PathUtils {
         return path.getParent();
     }
 
-    public static TGS_Tuple2<Path, Exception> toPathOrError(CharSequence fileOrDirectory) {
+    public static TGS_UnionExcuse<Path> toPath(CharSequence fileOrDirectory) {
         return TGS_UnSafe.call(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
             if (isURL && !TGS_CharSetCast.current().toLowerCase(path).startsWith("file:")) {
                 d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
-                return new TGS_Tuple2(null, TGS_UnSafe.toRuntimeException(d.className, "toPathAndError",
+                return TGS_UnionExcuse.ofExcuse(d.className, "toPath",
                         "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
-                ));
+                );
             }
-            return new TGS_Tuple2(isURL ? Path.of(URI.create(path)) : Path.of(path), null);
+            return TGS_UnionExcuse.of(isURL ? Path.of(URI.create(path)) : Path.of(path));
         }, e -> {
             d.ci("toPathAndError", e);
-            return new TGS_Tuple2(null, e);
+            return TGS_UnionExcuse.ofExcuse(e);
         });
     }
 
