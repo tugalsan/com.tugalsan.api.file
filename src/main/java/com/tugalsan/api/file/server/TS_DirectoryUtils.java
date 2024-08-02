@@ -96,13 +96,30 @@ public class TS_DirectoryUtils {
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
             TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
-        d.cr("copyDirectory.i", sourceFolder, asDestFolder, overwrite);
-        var dstDirPrefix = asDestFolder.toAbsolutePath().toString();
-        var subDirectories = subDirectories(sourceFolder, false, false);
-        (parallel ? subDirectories.parallelStream() : subDirectories.stream()).forEach(srcDir -> {
-            var dstSubDir = Path.of(dstDirPrefix, srcDir.getFileName().toString());
-            copyDirectory(srcDir, dstSubDir, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime);
+        copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, false);
+    }
+
+    public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
+            TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
+        d.cr("copyDirectory.i", sourceFolder, asDestFolder, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
+        var dstParentDirectory = asDestFolder.toAbsolutePath().toString();
+        var srcSubDirectories = subDirectories(sourceFolder, false, false);
+        (parallel ? srcSubDirectories.parallelStream() : srcSubDirectories.stream()).forEach(srcSubDirextory -> {
+            var dstSubDirectory = Path.of(dstParentDirectory, srcSubDirextory.getFileName().toString());
+            copyDirectory(srcSubDirextory, dstSubDirectory, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, deleteIfExtra);
         });
+        if (deleteIfExtra) {
+            subDirectories(asDestFolder, false, false).parallelStream().filter(
+                    dstSubDirectory -> srcSubDirectories.stream().filter(srcSubDirectory
+                            -> TS_DirectoryUtils.getName(srcSubDirectory).equals(TS_DirectoryUtils.getName(dstSubDirectory))
+                    ).findAny().isEmpty()
+            ).forEach(dstSubDirectory -> {
+                var u_delete = TS_DirectoryUtils.deleteDirectoryIfExists(dstSubDirectory);
+                if (u_delete.isExcuse()) {
+                    d.cr("copyDirectory", "cannot delete dir", dstSubDirectory, u_delete.excuse().getMessage());
+                }
+            });
+        }
         copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime);
     }
 
@@ -112,18 +129,23 @@ public class TS_DirectoryUtils {
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
             TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
+        copyFiles(sourceFolder, destFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, false);
+    }
+
+    public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
+            TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         d.cr("copyFiles.i", sourceFolder, destFolder, overwrite);
         createDirectoriesIfNotExists(destFolder);
-        var dstFilePrefix = destFolder.toAbsolutePath().toString();
-        var subFiles = subFiles(sourceFolder, null, false, false);
-        (parallel ? subFiles.parallelStream() : subFiles.stream()).forEach(srcFile -> {
+        var dstParentDirectory = destFolder.toAbsolutePath().toString();
+        var srcSubFiles = subFiles(sourceFolder, null, false, false);
+        (parallel ? srcSubFiles.parallelStream() : srcSubFiles.stream()).forEach(srcFile -> {
             if (filter != null) {
                 var valid = filter.validate(srcFile);
                 if (!valid) {
                     return;
                 }
             }
-            var dstFile = Path.of(dstFilePrefix, srcFile.getFileName().toString());
+            var dstFile = Path.of(dstParentDirectory, srcFile.getFileName().toString());
             if (TS_FileUtils.isExistFile(dstFile)) {
                 if (!overwrite) {
                     return;
@@ -143,6 +165,18 @@ public class TS_DirectoryUtils {
             d.cr("copyFiles.f", srcFile, dstFile, overwrite);
             TS_FileUtils.copyAs(srcFile, dstFile, overwrite);
         });
+        if (deleteIfExtra) {
+            subFiles(destFolder, null, false, false).parallelStream().filter(
+                    dstSubFiles -> srcSubFiles.stream().filter(srcSubFile
+                            -> TS_FileUtils.getNameFull(srcSubFile).equals(TS_FileUtils.getNameFull(dstSubFiles))
+                    ).findAny().isEmpty()
+            ).forEach(dstSubFiles -> {
+                var u_delete = TS_FileUtils.deleteFileIfExists(dstSubFiles);
+                if (u_delete.isExcuse()) {
+                    d.cr("copyDirectory", "cannot delete file", dstSubFiles, u_delete.excuse().getMessage());
+                }
+            });
+        }
     }
 
     public static void deleteSubDirectories(Path parentDirectory, boolean parallel) {
