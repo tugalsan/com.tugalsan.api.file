@@ -191,6 +191,9 @@ public class TS_FileUtils {
             }
             TGS_UnSafe.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ct("moveAs", e));
             return asDestFile;
+        }, e -> {
+            e.printStackTrace();
+            return null;
         });
     }
 
@@ -221,6 +224,9 @@ public class TS_FileUtils {
                 return null;
             }
             return asDestFile;
+        }, e -> {
+            e.printStackTrace();
+            return null;
         });
     }
 
