@@ -120,7 +120,7 @@ public class TS_DirectoryUtils {
                 }
             });
         }
-        copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime);
+        copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, deleteIfExtra);
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder) {
