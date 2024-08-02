@@ -101,7 +101,7 @@ public class TS_DirectoryUtils {
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
             TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
-        d.cr("copyDirectory.i", sourceFolder, asDestFolder, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
+        d.cr("copyDirectory.i", sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
         var dstParentDirectory = asDestFolder.toAbsolutePath().toString();
         var srcSubDirectories = subDirectories(sourceFolder, false, false);
         (parallel ? srcSubDirectories.parallelStream() : srcSubDirectories.stream()).forEach(srcSubDirextory -> {
@@ -134,7 +134,7 @@ public class TS_DirectoryUtils {
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
             TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
-        d.cr("copyFiles.i", sourceFolder, destFolder, overwrite);
+        d.cr("copyFiles.i", sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
         createDirectoriesIfNotExists(destFolder);
         var dstParentDirectory = destFolder.toAbsolutePath().toString();
         var srcSubFiles = subFiles(sourceFolder, null, false, false);
@@ -173,7 +173,7 @@ public class TS_DirectoryUtils {
             ).forEach(dstSubFiles -> {
                 var u_delete = TS_FileUtils.deleteFileIfExists(dstSubFiles);
                 if (u_delete.isExcuse()) {
-                    d.cr("copyDirectory", "cannot delete file", dstSubFiles, u_delete.excuse().getMessage());
+                    d.cr("copyFiles", "cannot delete file", dstSubFiles, u_delete.excuse().getMessage());
                 }
             });
         }
