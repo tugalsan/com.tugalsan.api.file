@@ -271,18 +271,25 @@ public class TS_FileUtils {
         return Path.of(strDst);
     }
 
-    public static String mime(Path img) {
-        var typ = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(img));
-        if (TGS_StringUtils.cmn().isPresent(typ) && typ.length() < 5) {
-            return typ.replace(";charset=UTF-8", "");
+    public static TGS_UnionExcuse<String> mime(Path urlFile) {
+        String typeByFileNameMap = TGS_UnSafe.call(() -> {
+            var type = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(urlFile)).replace(";charset=UTF-8", "");
+            if (TGS_StringUtils.cmn().isPresent(type) && type.length() < 5) {
+                return type;
+            } else {
+                return null;
+            }
+        }, e -> null);
+        if (typeByFileNameMap != null) {
+            return TGS_UnionExcuse.of(typeByFileNameMap);
         }
-        return TGS_UnSafe.call(() -> {
-            var url = img.toUri().toURL();
+        var typeByURLConnection = TGS_UnSafe.call(() -> {
+            var url = urlFile.toUri().toURL();
             return url.openConnection().getContentType().replace(";charset=UTF-8", "");
-        }, e -> {
-            d.ct("mime(TGS_Url img)", e);
-            return typ;
-        });
+        }, e -> null);
+        if (typeByURLConnection == null) {
+            return TGS_UnionExcuse.ofExcuse(d.className, "mime", "Cannot detect type for " + urlFile);
+        }
+        return TGS_UnionExcuse.of(typeByURLConnection);
     }
-
 }
