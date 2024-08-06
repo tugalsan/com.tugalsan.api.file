@@ -7,6 +7,7 @@ import java.util.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
 import com.tugalsan.api.list.client.*;
+import com.tugalsan.api.time.client.*;
 import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
@@ -134,7 +135,8 @@ public class TS_DirectoryUtils {
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
             TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
-        d.cr("copyFiles.i", sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
+        var now = TGS_Time.of();
+        d.cr("copyFiles.i", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
         createDirectoriesIfNotExists(destFolder);
         var dstParentDirectory = destFolder.toAbsolutePath().toString();
         var srcSubFiles = subFiles(sourceFolder, null, false, false);
