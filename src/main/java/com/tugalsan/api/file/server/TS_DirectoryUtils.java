@@ -102,7 +102,8 @@ public class TS_DirectoryUtils {
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
             TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
-        d.cr("copyDirectory.i", sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
+        var now = TGS_Time.of();
+        d.cr("copyDirectory.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
         var dstParentDirectory = asDestFolder.toAbsolutePath().toString();
         var srcSubDirectories = subDirectories(sourceFolder, false, false);
         (parallel ? srcSubDirectories.parallelStream() : srcSubDirectories.stream()).forEach(srcSubDirextory -> {
@@ -122,6 +123,8 @@ public class TS_DirectoryUtils {
             });
         }
         copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, deleteIfExtra);
+        now.setToTodayAndNow();
+        d.cr("copyDirectory.i", "end", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder) {
@@ -136,7 +139,7 @@ public class TS_DirectoryUtils {
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
             TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         var now = TGS_Time.of();
-        d.cr("copyFiles.i", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
+        d.cr("copyFiles.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
         createDirectoriesIfNotExists(destFolder);
         var dstParentDirectory = destFolder.toAbsolutePath().toString();
         var srcSubFiles = subFiles(sourceFolder, null, false, false);
@@ -179,6 +182,8 @@ public class TS_DirectoryUtils {
                 }
             });
         }
+        now.setToTodayAndNow();
+        d.cr("copyFiles.i", "end", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
     }
 
     public static void deleteSubDirectories(Path parentDirectory, boolean parallel) {
