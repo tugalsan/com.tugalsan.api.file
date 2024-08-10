@@ -47,6 +47,17 @@ public class TS_PathUtils {
         return path.getParent();
     }
 
+    public static boolean isPathable(CharSequence fileOrDirectory) {
+        return TGS_UnSafe.call(() -> {
+            var path = fileOrDirectory.toString();
+            var isURL = path.contains("://");
+            if (isURL && !TGS_CharSetCast.current().toLowerCase(path).startsWith("file:")) {
+                return false;
+            }
+            return true;
+        }, e -> false);
+    }
+
     public static TGS_UnionExcuse<Path> toPath(CharSequence fileOrDirectory) {
         return TGS_UnSafe.call(() -> {
             var path = fileOrDirectory.toString();
