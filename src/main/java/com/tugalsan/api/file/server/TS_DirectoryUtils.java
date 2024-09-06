@@ -96,19 +96,19 @@ public class TS_DirectoryUtils {
     }
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
-            TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
-        copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, false);
+            TGS_Func_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime) {
+        copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, filter_srcFile, skipIfSameSizeAndDateAndTime, false);
     }
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
-            TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
+            TGS_Func_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         var now = TGS_Time.of();
         d.cr("copyDirectory.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
         var dstParentDirectory = asDestFolder.toAbsolutePath().toString();
         var srcSubDirectories = subDirectories(sourceFolder, false, false);
         (parallel ? srcSubDirectories.parallelStream() : srcSubDirectories.stream()).forEach(srcSubDirextory -> {
             var dstSubDirectory = Path.of(dstParentDirectory, srcSubDirextory.getFileName().toString());
-            copyDirectory(srcSubDirextory, dstSubDirectory, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, deleteIfExtra);
+            copyDirectory(srcSubDirextory, dstSubDirectory, overwrite, parallel, filter_srcFile, skipIfSameSizeAndDateAndTime, deleteIfExtra);
         });
         if (deleteIfExtra) {
             subDirectories(asDestFolder, false, false).parallelStream().filter(
@@ -122,7 +122,7 @@ public class TS_DirectoryUtils {
                 }
             });
         }
-        copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, deleteIfExtra);
+        copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter_srcFile, skipIfSameSizeAndDateAndTime, deleteIfExtra);
         now.setToTodayAndNow();
         d.cr("copyDirectory.i", "end", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
     }
@@ -132,20 +132,20 @@ public class TS_DirectoryUtils {
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
-            TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime) {
-        copyFiles(sourceFolder, destFolder, overwrite, parallel, filter, skipIfSameSizeAndDateAndTime, false);
+            TGS_Func_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime) {
+        copyFiles(sourceFolder, destFolder, overwrite, parallel, filter_srcFile, skipIfSameSizeAndDateAndTime, false);
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
-            TGS_Func_OutBool_In1<Path> filter, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
+            TGS_Func_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         var now = TGS_Time.of();
         d.cr("copyFiles.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
         createDirectoriesIfNotExists(destFolder);
         var dstParentDirectory = destFolder.toAbsolutePath().toString();
         var srcSubFiles = subFiles(sourceFolder, null, false, false);
         (parallel ? srcSubFiles.parallelStream() : srcSubFiles.stream()).forEach(srcFile -> {
-            if (filter != null) {
-                var valid = filter.validate(srcFile);
+            if (filter_srcFile != null) {
+                var valid = filter_srcFile.validate(srcFile);
                 if (!valid) {
                     return;
                 }
