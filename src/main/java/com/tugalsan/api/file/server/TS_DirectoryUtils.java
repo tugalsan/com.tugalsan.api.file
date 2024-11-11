@@ -2,6 +2,7 @@ package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.function.client.TGS_Func_OutBool_In1;
 import com.tugalsan.api.charset.client.TGS_CharSetCast;
+import static com.tugalsan.api.file.server.TS_FileUtils.toFileTime;
 import java.io.*;
 import java.util.*;
 import java.nio.file.*;
@@ -18,6 +19,61 @@ import com.tugalsan.api.unsafe.client.*;
 public class TS_DirectoryUtils {
 
     final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
+
+    public static FileTime toFileTime(TGS_Time time) {
+        return FileTime.fromMillis(time.toDateMillis());
+    }
+
+    public static Path setTimeLastModified(Path path, TGS_Time time) {
+        return TGS_UnSafe.call(() -> {
+            Files.setAttribute(path, "lastModifiedTime", toFileTime(time));
+            return path;
+        });
+    }
+
+    public static Path setTimeAccessTime(Path path, TGS_Time time) {
+        return TGS_UnSafe.call(() -> {
+            Files.setAttribute(path, "lastAccessTime", toFileTime(time));
+            return path;
+        });
+    }
+
+    public static Path setTimeCreationTime(Path path, TGS_Time time) {
+        return TGS_UnSafe.call(() -> {
+            Files.setAttribute(path, "creationTime", toFileTime(time));
+            return path;
+        });
+    }
+
+    public static TGS_Time getTimeLastModified(Path path) {
+        return TGS_UnSafe.call(() -> {
+            return TGS_Time.ofMillis(Files
+                    .readAttributes(path, BasicFileAttributes.class)
+                    .lastModifiedTime()
+                    .toMillis()
+            );
+        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
+    }
+
+    public static TGS_Time getTimeLastAccessTime(Path path) {
+        return TGS_UnSafe.call(() -> {
+            return TGS_Time.ofMillis(Files
+                    .readAttributes(path, BasicFileAttributes.class)
+                    .lastAccessTime()
+                    .toMillis()
+            );
+        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
+    }
+
+    public static TGS_Time getTimeCreationTime(Path path) {
+        return TGS_UnSafe.call(() -> {
+            return TGS_Time.ofMillis(Files
+                    .readAttributes(path, BasicFileAttributes.class)
+                    .creationTime()
+                    .toMillis()
+            );
+        }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
+    }
 
     public static String getName(Path path) {
         //EASY WAY
