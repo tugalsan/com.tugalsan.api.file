@@ -127,7 +127,9 @@ public class TS_FileUtils {
             if (!isExistFile(file)) {
                 return TGS_UnionExcuseVoid.ofVoid();
             }
-            Files.deleteIfExists(file);
+            if (isExistFile(file)) {
+                Files.delete(file);
+            }
             return TGS_UnionExcuseVoid.ofVoid();
         }, e -> {
             return TGS_UnionExcuseVoid.ofExcuse(e);
