@@ -280,8 +280,10 @@ public class TS_DirectoryUtils {
                     }
                 }
             }
-            if (!dontDeleteSelfDirectory) {
-                Files.delete(path);
+            if (isExistDirectory(path)) {
+                if (!dontDeleteSelfDirectory) {
+                    Files.delete(path);
+                }
             }
             return TGS_UnionExcuseVoid.ofVoid();
         }, e -> {
@@ -302,7 +304,9 @@ public class TS_DirectoryUtils {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     return TGS_UnSafe.call(() -> {
                         d.ci("visitFile", file);
-                        Files.delete(file);
+                        if (TS_FileUtils.isExistFile(file)) {
+                            Files.delete(file);
+                        }
                         return FileVisitResult.CONTINUE;
                     });
                 }
@@ -314,13 +318,17 @@ public class TS_DirectoryUtils {
                         if (TGS_CharSetCast.current().equalsIgnoreCase(dir.toAbsolutePath().toString(), pathStr)) {
                             return FileVisitResult.CONTINUE;
                         }
-                        Files.delete(dir);
+                        if (isExistDirectory(dir)) {
+                            Files.delete(dir);
+                        }
                         return FileVisitResult.CONTINUE;
                     });
                 }
             });
-            if (!dontDeleteSelfDirectory) {
-                Files.deleteIfExists(path);
+            if (isExistDirectory(path)) {
+                if (!dontDeleteSelfDirectory) {
+                    Files.delete(path);
+                }
             }
         });
     }
@@ -395,7 +403,9 @@ public class TS_DirectoryUtils {
                 }
                 return deleteDirectoryIfExists(directory);
             }
-            Files.deleteIfExists(directory);
+            if (isExistDirectory(directory)) {
+                Files.delete(directory);
+            }
             return TGS_UnionExcuseVoid.ofVoid();
         }, e -> {
             return TGS_UnionExcuseVoid.ofExcuse(e);
