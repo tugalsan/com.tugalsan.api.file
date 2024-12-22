@@ -95,7 +95,6 @@
                     <compilerArgs>
                        <arg>- -add-modules</arg>
                         <arg>jdk.incubator.vector</arg>
-                        <arg>-XX:+EnableDynamicAgentLoading 
                     </compilerArgs> -->
                 </configuration>
             </plugin>
