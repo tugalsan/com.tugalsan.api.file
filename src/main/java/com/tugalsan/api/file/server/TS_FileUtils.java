@@ -104,7 +104,7 @@ public class TS_FileUtils {
             return false;
         }
         return TGS_UnSafe.call(() -> {
-            try (var  _ = Files.newOutputStream(file, StandardOpenOption.READ, StandardOpenOption.WRITE)) {
+            try (var  _ = Files.newOutputStream(file, StandardOpenOption.APPEND)) {
                 return false;
             }
         }, e -> true);
