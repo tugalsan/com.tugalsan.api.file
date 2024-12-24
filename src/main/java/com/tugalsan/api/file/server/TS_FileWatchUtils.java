@@ -26,7 +26,7 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_Func exe, Triggers... types) {
+    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_Func exe, int maxSeconds, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         AtomicReference<TGS_Time> lastProcessedFile_lastModified = new AtomicReference();
         return directory(killTrigger, targetFile.getParent(), filename -> {
@@ -35,9 +35,16 @@ public class TS_FileWatchUtils {
                 return;
             }
             d.ci("file", "filenames same", targetFile, filename);
+            var totalSeconds = 0;
+            var gapSeconds = 10;
             while (TS_FileUtils.isFileLocked(targetFile)) {
                 d.cr("file", "file lock detected ", "waiting...", targetFile);
-                TS_ThreadWait.seconds("file", killTrigger, 10);
+                TS_ThreadWait.seconds("file", killTrigger, gapSeconds);
+                totalSeconds += gapSeconds;
+                if (totalSeconds > maxSeconds) {
+                    d.cr("file", "file lock detected ", "totalSeconds > maxSeconds", "failed...", targetFile);
+                    return;
+                }
             }
             var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
             if (lastModified == null) {
