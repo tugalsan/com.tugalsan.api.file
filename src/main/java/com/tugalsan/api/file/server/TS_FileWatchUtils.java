@@ -4,6 +4,7 @@ import com.tugalsan.api.function.client.TGS_Func;
 import com.tugalsan.api.function.client.TGS_Func_In1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
+import com.tugalsan.api.thread.server.TS_ThreadWait;
 import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
 import com.tugalsan.api.tuple.client.TGS_Tuple2;
 import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
@@ -34,6 +35,10 @@ public class TS_FileWatchUtils {
                 return;
             }
             d.ci("file", "filenames same", targetFile, filename);
+            while (TS_FileUtils.isFileLocked(targetFile)) {
+                d.cr("file", "file lock detected ", "waiting...", targetFile);
+                TS_ThreadWait.seconds("file", killTrigger, 10);
+            }
             var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
             if (lastModified == null) {
                 d.ce("file", "cannot fetch lastModified", "skipping...", targetFile);

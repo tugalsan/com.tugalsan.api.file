@@ -99,6 +99,17 @@ public class TS_FileUtils {
         return Files.isWritable(file);
     }
 
+    public static boolean isFileLocked(Path file) {
+        if (!isExistFile(file)) {
+            return false;
+        }
+        return TGS_UnSafe.call(() -> {
+            try (var  _ = Files.newOutputStream(file, StandardOpenOption.READ, StandardOpenOption.WRITE)) {
+                return true;
+            }
+        }, e -> true);
+    }
+
     public static boolean isExistFile(Path file) {
         return file != null && !Files.isDirectory(file) && Files.exists(file);
     }
