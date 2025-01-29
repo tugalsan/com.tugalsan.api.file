@@ -280,6 +280,7 @@ public class TS_DirectoryUtils {
                 }
             }
             if (isExistDirectory(path)) {
+                deleteSubFiles(path, "*.*", true);
                 if (!dontDeleteSelfDirectory) {
                     Files.delete(path);
                 }
