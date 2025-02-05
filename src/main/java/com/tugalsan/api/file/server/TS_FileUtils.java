@@ -12,6 +12,7 @@ import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
+import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
@@ -141,6 +142,18 @@ public class TS_FileUtils {
 
     public static boolean createFileIfNotExists(Path file) {
         return isExistFile(file) || createFile(file);
+    }
+
+    public static TGS_UnionExcuse<Path> createFileTemp() {
+        return createFileTemp(".tmp");
+    }
+
+    public static TGS_UnionExcuse<Path> createFileTemp(String suffix) {
+        return TGS_UnSafe.call(() -> {
+            var file = File.createTempFile("", suffix);
+            file.deleteOnExit();
+            return TGS_UnionExcuse.of(file.toPath());
+        }, e -> TGS_UnionExcuse.ofExcuse(e));
     }
 
     public static boolean createFile(Path file) {
