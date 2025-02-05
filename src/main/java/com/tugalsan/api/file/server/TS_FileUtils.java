@@ -79,11 +79,12 @@ public class TS_FileUtils {
 
     public static TGS_Time getTimeLastModified(Path path) {
         return TGS_UnSafe.call(() -> {
-            return TGS_Time.ofMillis(Files
-                    .readAttributes(path, BasicFileAttributes.class)
-                    .lastModifiedTime()
-                    .toMillis()
-            );
+            return TGS_Time.ofMillis(Files.getLastModifiedTime(path).toMillis());
+//            return TGS_Time.ofMillis(Files
+//                    .readAttributes(path, BasicFileAttributes.class)
+//                    .lastModifiedTime()
+//                    .toMillis()
+//            );
         }, e -> null);//POSSIBLY ACCESS DENIED EXCEPTION
     }
 
