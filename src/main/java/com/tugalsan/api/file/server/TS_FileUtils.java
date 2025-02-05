@@ -12,13 +12,37 @@ import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 import com.tugalsan.api.unsafe.client.*;
+import java.io.RandomAccessFile;
 import java.net.URLConnection;
+import java.nio.channels.FileChannel;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
 public class TS_FileUtils {
 
     final private static TS_Log d = TS_Log.of(TS_FileUtils.class);
+
+    private static TGS_UnionExcuse<Boolean> hasSameContent_doFaster(Path file1, Path file2, boolean abuseMemory) {
+        return TGS_UnSafe.call(() -> {
+            if (abuseMemory) {
+                try (var randomAccessFile1 = new RandomAccessFile(file1.toFile(), "r");) {
+                    try (var randomAccessFile2 = new RandomAccessFile(file2.toFile(), "r")) {
+                        var ch1 = randomAccessFile1.getChannel();
+                        var ch2 = randomAccessFile2.getChannel();
+                        if (ch1.size() != ch2.size()) {
+                            return TGS_UnionExcuse.of(false);
+                        }
+                        var size = ch1.size();
+                        var m1 = ch1.map(FileChannel.MapMode.READ_ONLY, 0L, size);
+                        var m2 = ch2.map(FileChannel.MapMode.READ_ONLY, 0L, size);
+                        return TGS_UnionExcuse.of(m1.equals(m2));
+                    }
+                }
+            } else {
+                return TGS_UnionExcuse.of(Files.mismatch(file2, file2) == -1L);
+            }
+        }, e -> TGS_UnionExcuse.ofExcuse(e));
+    }
 
     public static FileTime toFileTime(TGS_Time time) {
         return FileTime.fromMillis(time.toDateMillis());
