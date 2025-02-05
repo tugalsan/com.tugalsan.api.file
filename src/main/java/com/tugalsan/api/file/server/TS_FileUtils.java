@@ -22,7 +22,7 @@ public class TS_FileUtils {
 
     final private static TS_Log d = TS_Log.of(TS_FileUtils.class);
 
-    public static TGS_UnionExcuse<Boolean> hasSameContent_doFaster(Path file1, Path file2, boolean abuseMemory) {
+    public static TGS_UnionExcuse<Boolean> hasSameContent(Path file1, Path file2, boolean abuseMemory) {
         return TGS_UnSafe.call(() -> {
             if (abuseMemory) {
                 try (var randomAccessFile1 = new RandomAccessFile(file1.toFile(), "r");) {
