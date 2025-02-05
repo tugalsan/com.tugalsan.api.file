@@ -150,7 +150,7 @@ public class TS_FileUtils {
 
     public static TGS_UnionExcuse<Path> createFileTemp(String suffix) {
         return TGS_UnSafe.call(() -> {
-            var file = File.createTempFile("", suffix);
+            var file = File.createTempFile(null, suffix);
             file.deleteOnExit();
             return TGS_UnionExcuse.of(file.toPath());
         }, e -> TGS_UnionExcuse.ofExcuse(e));
