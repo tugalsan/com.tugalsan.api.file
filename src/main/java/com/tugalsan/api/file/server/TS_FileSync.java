@@ -1,6 +1,6 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.unsafe.client.TGS_UnSafe;
+import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -63,7 +63,7 @@ public class TS_FileSync {
     }
 
     private static boolean syncFile(File file, File toFile) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             if (file.getName().startsWith(".")) {
                 return true;
             }

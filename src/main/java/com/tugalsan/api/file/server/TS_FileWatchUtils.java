@@ -1,15 +1,13 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.function.client.TGS_Func;
-import com.tugalsan.api.function.client.TGS_Func_In1;
+import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE_In1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
-import com.tugalsan.api.thread.server.TS_ThreadWait;
+import com.tugalsan.api.thread.server.sync.TS_ThreadSyncWait;
 import com.tugalsan.api.thread.server.sync.TS_ThreadSyncTrigger;
 import com.tugalsan.api.tuple.client.TGS_Tuple2;
-import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
+import com.tugalsan.api.thread.server.async.run.TS_ThreadAsyncRun;
 import com.tugalsan.api.time.client.TGS_Time;
-import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
@@ -17,6 +15,8 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
+import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE;
+import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
 
 public class TS_FileWatchUtils {
 
@@ -26,7 +26,7 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_Func exe, int maxSeconds, Triggers... types) {
+    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_FuncMTUCE exe, int maxSeconds, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         AtomicReference<TGS_Time> lastProcessedFile_lastModified = new AtomicReference();
         return directory(killTrigger, targetFile.getParent(), filename -> {
@@ -39,7 +39,7 @@ public class TS_FileWatchUtils {
             var gapSeconds = 10;
             while (TS_FileUtils.isFileLocked(targetFile)) {
                 d.cr("file", "file lock detected ", "waiting...", targetFile);
-                TS_ThreadWait.seconds("file", killTrigger, gapSeconds);
+                TS_ThreadSyncWait.seconds("file", killTrigger, gapSeconds);
                 totalSeconds += gapSeconds;
                 if (totalSeconds > maxSeconds) {
                     d.cr("file", "file lock detected ", "totalSeconds > maxSeconds", "failed...", targetFile);
@@ -86,7 +86,7 @@ public class TS_FileWatchUtils {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static boolean directoryRecursive(Path directory, TGS_Func_In1<Path> file, Triggers... types) {
+    public static boolean directoryRecursive(Path directory, TGS_FuncMTUCE_In1<Path> file, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
@@ -95,13 +95,13 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_Func_In1<String> filename, Triggers... types) {
+    public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_FuncMTUCE_In1<String> filename, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
         }
-        TS_ThreadAsync.now(killTrigger, kt -> {
-            TGS_UnSafe.run(() -> {
+        TS_ThreadAsyncRun.now(killTrigger, kt -> {
+            TGS_FuncMTCEUtils.run(() -> {
                 try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
                     WatchKey key;

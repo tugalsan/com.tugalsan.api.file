@@ -1,5 +1,7 @@
 package com.tugalsan.api.file.server;
 
+import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
+import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCEUtils;
 import java.util.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
@@ -11,7 +13,7 @@ import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
-import com.tugalsan.api.unsafe.client.*;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.URLConnection;
@@ -24,7 +26,7 @@ public class TS_FileUtils {
     final private static TS_Log d = TS_Log.of(TS_FileUtils.class);
 
     public static TGS_UnionExcuse<Boolean> hasSameContent(Path file1, Path file2, boolean abuseMemory) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             if (abuseMemory) {
                 try (var randomAccessFile1 = new RandomAccessFile(file1.toFile(), "r");) {
                     try (var randomAccessFile2 = new RandomAccessFile(file2.toFile(), "r")) {
@@ -54,32 +56,32 @@ public class TS_FileUtils {
     }
 
     public static long getFileSizeInBytes(Path file) {
-        return TGS_UnSafe.call(() -> Files.size(file));
+        return TGS_FuncMTCEUtils.call(() -> Files.size(file));
     }
 
     public static Path setTimeLastModified(Path path, TGS_Time time) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             Files.setAttribute(path, "lastModifiedTime", toFileTime(time));
             return path;
         });
     }
 
     public static Path setTimeAccessTime(Path path, TGS_Time time) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             Files.setAttribute(path, "lastAccessTime", toFileTime(time));
             return path;
         });
     }
 
     public static Path setTimeCreationTime(Path path, TGS_Time time) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             Files.setAttribute(path, "creationTime", toFileTime(time));
             return path;
         });
     }
 
     public static TGS_Time getTimeLastModified(Path path) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             return TGS_Time.ofMillis(Files.getLastModifiedTime(path).toMillis());
 //            return TGS_Time.ofMillis(Files
 //                    .readAttributes(path, BasicFileAttributes.class)
@@ -90,7 +92,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_Time getTimeLastAccessTime(Path path) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             return TGS_Time.ofMillis(Files
                     .readAttributes(path, BasicFileAttributes.class)
                     .lastAccessTime()
@@ -100,7 +102,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_Time getTimeCreationTime(Path path) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             return TGS_Time.ofMillis(Files
                     .readAttributes(path, BasicFileAttributes.class)
                     .creationTime()
@@ -110,11 +112,11 @@ public class TS_FileUtils {
     }
 
     public static byte[] read(Path source) {
-        return TGS_UnSafe.call(() -> Files.readAllBytes(source));
+        return TGS_FuncMTCEUtils.call(() -> Files.readAllBytes(source));
     }
 
     public static Path write(byte[] source, Path dest, boolean append) {
-        return TGS_UnSafe.call(() -> Files.write(dest, source, StandardOpenOption.CREATE, append ? StandardOpenOption.APPEND : StandardOpenOption.WRITE));
+        return TGS_FuncMTCEUtils.call(() -> Files.write(dest, source, StandardOpenOption.CREATE, append ? StandardOpenOption.APPEND : StandardOpenOption.WRITE));
     }
 
     public static boolean isFileReadable(Path file) {
@@ -129,7 +131,7 @@ public class TS_FileUtils {
         if (!isExistFile(file)) {
             return false;
         }
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             try (var  _ = Files.newOutputStream(file, StandardOpenOption.APPEND)) {
                 return false;
             }
@@ -149,7 +151,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_UnionExcuse<Path> createFileTemp(String suffix) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             var file = File.createTempFile(d.className, suffix);
             file.deleteOnExit();
             return TGS_UnionExcuse.of(file.toPath());
@@ -157,7 +159,7 @@ public class TS_FileUtils {
     }
 
     public static boolean createFile(Path file) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             TS_DirectoryUtils.createDirectoriesIfNotExists(file.getParent());
             Files.createFile(file);
             return true;
@@ -172,7 +174,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_UnionExcuseVoid deleteFileIfExists(Path file) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             if (!isExistFile(file)) {
                 return TGS_UnionExcuseVoid.ofVoid();
             }
@@ -231,7 +233,7 @@ public class TS_FileUtils {
     }
 
     public static Path moveAs(Path sourceFile, Path asDestFile, boolean overwrite) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             d.ci("moveAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
                 return asDestFile;
@@ -240,7 +242,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_UnSafe.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ct("moveAs", e));
+            TGS_FuncMTCEUtils.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ct("moveAs", e));
             return asDestFile;
         }, e -> {
             e.printStackTrace();
@@ -261,7 +263,7 @@ public class TS_FileUtils {
     }
 
     public static Path copyAs(Path sourceFile, Path asDestFile, boolean overwrite) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             d.ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
                 return asDestFile;
@@ -270,7 +272,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_UnSafe.run(() -> Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("copyAs", e));
+            TGS_FuncMTCEUtils.run(() -> Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("copyAs", e));
             if (!isExistFile(asDestFile)) {
                 return null;
             }
@@ -284,14 +286,14 @@ public class TS_FileUtils {
     public static Path copyAsAssure(Path source, Path dest, boolean overwrite) {
         var path = copyAs(source, dest, overwrite);
         if (!isExistFile(dest)) {
-            TGS_UnSafe.thrw(d.className, "copyAsAssure", "!isExistFile(dest):" + dest);
+            TGS_FuncMTUCEUtils.thrw(d.className, "copyAsAssure", "!isExistFile(dest):" + dest);
         }
         return path;
     }
 
     @SuppressWarnings("empty-statement")
     public static TGS_UnionExcuse<Long> getChecksumLng(Path file) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             try (var in = new CheckedInputStream(Files.newInputStream(file), new CRC32())) {
                 var bytes = new byte[1024];
                 while (in.read(bytes) >= 0)
@@ -304,7 +306,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_UnionExcuse<String> getChecksumHex(Path file) {
-        return TGS_UnSafe.call(() -> {
+        return TGS_FuncMTCEUtils.call(() -> {
             var bytes = Files.readAllBytes(file);
             var hash = MessageDigest.getInstance("MD5").digest(bytes);
             return TGS_UnionExcuse.of(DatatypeConverter.printHexBinary(hash));
@@ -323,7 +325,7 @@ public class TS_FileUtils {
     }
 
     public static TGS_UnionExcuse<String> mime(Path urlFile) {
-        String typeByFileNameMap = TGS_UnSafe.call(() -> {
+        String typeByFileNameMap = TGS_FuncMTCEUtils.call(() -> {
             var type = URLConnection.getFileNameMap().getContentTypeFor(getNameFull(urlFile)).replace(";charset=UTF-8", "");
             if (TGS_StringUtils.cmn().isPresent(type) && type.length() < 5) {
                 return type;
@@ -334,7 +336,7 @@ public class TS_FileUtils {
         if (typeByFileNameMap != null) {
             return TGS_UnionExcuse.of(typeByFileNameMap);
         }
-        var typeByURLConnection = TGS_UnSafe.call(() -> {
+        var typeByURLConnection = TGS_FuncMTCEUtils.call(() -> {
             var url = urlFile.toUri().toURL();
             return url.openConnection().getContentType().replace(";charset=UTF-8", "");
         }, e -> null);
