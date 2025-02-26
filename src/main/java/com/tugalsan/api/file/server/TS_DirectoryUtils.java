@@ -165,7 +165,7 @@ public class TS_DirectoryUtils {
             TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, TGS_FuncMTUCE_OutBool_In1<Path> filter_srcDir,
             boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         if (filter_srcDir != null && !filter_srcDir.validate(sourceFolder)) {
-            d.ce("copyDirectory", "SKIP_DIR", filter_srcDir);
+            d.ce("copyDirectory", "SKIP_DIR", sourceFolder);
             return;
         }
         var now = TGS_Time.of();
