@@ -16,7 +16,6 @@ import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 
-
 public class TS_DirectoryUtils {
 
     final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
@@ -159,6 +158,15 @@ public class TS_DirectoryUtils {
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
             TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
+        copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, filter_srcFile, null, skipIfSameSizeAndDateAndTime, deleteIfExtra);
+    }
+
+    public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
+            TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, TGS_FuncMTUCE_OutBool_In1<Path> filter_srcDir,
+            boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
+        if (filter_srcDir != null && !filter_srcDir.validate(sourceFolder)) {
+            return;
+        }
         var now = TGS_Time.of();
         d.cr("copyDirectory.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
         var dstParentDirectory = asDestFolder.toAbsolutePath().toString();
