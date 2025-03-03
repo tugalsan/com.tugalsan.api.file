@@ -11,8 +11,11 @@ import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
 
-
 public class TS_PathUtils {
+
+    private TS_PathUtils() {
+
+    }
 
     final private static TS_Log d = TS_Log.of(TS_PathUtils.class);
 
@@ -115,7 +118,7 @@ public class TS_PathUtils {
     }
 
     public static boolean contains(List<Path> sources, Path searchFor) {
-        return sources.stream().filter(src -> equals(src, searchFor)).findAny().isPresent();
+        return sources.stream().anyMatch(src -> equals(src, searchFor));
     }
 
     public static boolean equals(Path src1, Path src2) {

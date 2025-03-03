@@ -97,6 +97,6 @@ public enum TGS_FileTypes {
         this.content = content;
         this.utf8 = utf8;
     }
-    public String name, content;
-    public boolean utf8;
+    final public String name, content;
+    final public boolean utf8;
 }

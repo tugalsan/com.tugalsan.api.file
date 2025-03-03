@@ -7,14 +7,18 @@ import java.io.FileOutputStream;
 import java.util.Objects;
 
 @Deprecated //NOT TESTET WHATSOEVER
-public class TS_FileSync {
+public class TS_FileSyncUtils {
 
-    public static void mirror(String src, String dst) throws Exception {
-        TS_FileSync.sync(src, dst);
-        TS_FileSync.clean(src, dst);
+    private TS_FileSyncUtils() {
+
     }
 
-    public static void clean(String fromPath, String toPath) throws Exception {
+    public static void mirror(String src, String dst) {
+        TS_FileSyncUtils.sync(src, dst);
+        TS_FileSyncUtils.clean(src, dst);
+    }
+
+    public static void clean(String fromPath, String toPath) {
         var fromFile = new File(fromPath);
         var toFile = new File(toPath);
         for (var file : fromFile.listFiles()) {
@@ -33,14 +37,16 @@ public class TS_FileSync {
         }
     }
 
-    private static void cleanFile(File file, File toFile) throws Exception {
-        if (file.getName().startsWith(".")) {
-            return;
-        }
-        if (!toFile.exists()) {
-            System.out.println(" delete --> " + file);
-            file.delete();
-        }
+    private static void cleanFile(File file, File toFile) {
+        TGS_FuncMTCEUtils.run(() -> {
+            if (file.getName().startsWith(".")) {
+                return;
+            }
+            if (!toFile.exists()) {
+                System.out.println(" delete --> " + file);
+                file.delete();
+            }
+        });
     }
 
     public static boolean sync(String fromPath, String toPath) {

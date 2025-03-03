@@ -8,6 +8,10 @@ import java.util.*;
 
 public class TS_RootUtils {
 
+    private TS_RootUtils() {
+
+    }
+
     public static long getUsableSpaceInBytes(Path root) {
         return TGS_FuncMTCEUtils.call(() -> {
             var store = Files.getFileStore(root);

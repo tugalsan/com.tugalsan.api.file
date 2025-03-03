@@ -20,6 +20,10 @@ import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEU
 
 public class TS_FileWatchUtils {
 
+    private TS_FileWatchUtils() {
+
+    }
+
     final public static TS_Log d = TS_Log.of(TS_FileWatchUtils.class);
 
     public static enum Triggers {

@@ -6,6 +6,10 @@ import java.util.*;
 
 @Deprecated
 public class TGS_FileUtilsEng {
+    
+    private TGS_FileUtilsEng(){
+        
+    }
 
     public static String toSafe(CharSequence fileName) {
         return toSafe(fileName, SAFE_DEFAULT_CHAR());

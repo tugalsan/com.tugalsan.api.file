@@ -6,6 +6,10 @@ import java.util.*;
 
 public class TGS_FileUtilsTur {
 
+    private TGS_FileUtilsTur() {
+
+    }
+
     public static String toSafe(CharSequence fileName) {
         return toSafe(fileName, SAFE_DEFAULT_CHAR());
     }

@@ -18,6 +18,10 @@ import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 
 public class TS_DirectoryUtils {
 
+    private TS_DirectoryUtils() {
+
+    }
+
     final private static TS_Log d = TS_Log.of(TS_DirectoryUtils.class);
 
     public static FileTime toFileTime(TGS_Time time) {
@@ -178,9 +182,9 @@ public class TS_DirectoryUtils {
         });
         if (deleteIfExtra) {
             subDirectories(asDestFolder, false, false).parallelStream().filter(
-                    dstSubDirectory -> srcSubDirectories.stream().filter(srcSubDirectory
+                    dstSubDirectory -> srcSubDirectories.stream().noneMatch(srcSubDirectory
                             -> TS_DirectoryUtils.getName(srcSubDirectory).equals(TS_DirectoryUtils.getName(dstSubDirectory))
-                    ).findAny().isEmpty()
+                    )
             ).forEach(dstSubDirectory -> {
                 var u_delete = TS_DirectoryUtils.deleteDirectoryIfExists(dstSubDirectory);
                 if (u_delete.isExcuse()) {
@@ -239,9 +243,9 @@ public class TS_DirectoryUtils {
         });
         if (deleteIfExtra) {
             subFiles(destFolder, null, false, false).parallelStream().filter(
-                    dstSubFiles -> srcSubFiles.stream().filter(srcSubFile
+                    dstSubFiles -> srcSubFiles.stream().noneMatch(srcSubFile
                             -> TS_FileUtils.getNameFull(srcSubFile).equals(TS_FileUtils.getNameFull(dstSubFiles))
-                    ).findAny().isEmpty()
+                    )
             ).forEach(dstSubFiles -> {
                 var u_delete = TS_FileUtils.deleteFileIfExists(dstSubFiles);
                 if (u_delete.isExcuse()) {
@@ -337,10 +341,8 @@ public class TS_DirectoryUtils {
                     });
                 }
             });
-            if (isExistDirectory(path)) {
-                if (!dontDeleteSelfDirectory) {
-                    Files.delete(path);
-                }
+            if (isExistDirectory(path) && !dontDeleteSelfDirectory) {
+                Files.delete(path);
             }
         });
     }

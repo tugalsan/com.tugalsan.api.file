@@ -101,7 +101,7 @@ public class TS_DirectoryWatchDriver {
 
             key.pollEvents().forEach(event -> {
                 var kind = event.kind();
-                if (!(kind == OVERFLOW)) {
+                if (kind != OVERFLOW) {
                     WatchEvent<Path> ev = cast(event);
                     var name = ev.context();
                     var child = dir.resolve(name);
