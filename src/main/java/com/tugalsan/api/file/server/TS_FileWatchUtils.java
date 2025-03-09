@@ -104,7 +104,7 @@ public class TS_FileWatchUtils {
             d.ci("watch", "diretory not found", directory);
             return false;
         }
-        TS_ThreadAsyncRun.now(killTrigger, kt -> {
+        TS_ThreadAsyncRun.now(killTrigger.newChild(d.className).newChild("directory"), kt -> {
             TGS_FuncMTCEUtils.run(() -> {
                 try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
