@@ -1,6 +1,6 @@
 package com.tugalsan.api.file.server.watch;
 
-import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE_In1;
+import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU_In1;
 import com.tugalsan.api.file.server.TS_FileWatchUtils;
 import com.tugalsan.api.file.server.TS_FileWatchUtils.Triggers;
 import com.tugalsan.api.log.server.TS_Log;
@@ -10,8 +10,8 @@ import static java.nio.file.LinkOption.*;
 import java.nio.file.attribute.*;
 import java.io.*;
 import java.util.*;
-import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE;
-import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
+import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU;
+import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
 
 public class TS_DirectoryWatchDriver {
 
@@ -50,7 +50,7 @@ public class TS_DirectoryWatchDriver {
         });
     }
 
-    private TS_DirectoryWatchDriver(Path dir, TGS_FuncMTUCE_In1<Path> forFile, boolean recursive, TS_FileWatchUtils.Triggers... triggers) throws IOException {
+    private TS_DirectoryWatchDriver(Path dir, TGS_FuncMTU_In1<Path> forFile, boolean recursive, TS_FileWatchUtils.Triggers... triggers) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap();
         this.recursive = recursive;
@@ -66,17 +66,17 @@ public class TS_DirectoryWatchDriver {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver of(Path dir, TGS_FuncMTUCE_In1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
-        return TGS_FuncMTCEUtils.call(() -> new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
+    public static TS_DirectoryWatchDriver of(Path dir, TGS_FuncMTU_In1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+        return TGS_FuncMTCUtils.call(() -> new TS_DirectoryWatchDriver(dir, forFile, false, triggers));
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_FuncMTUCE_In1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
-        return TGS_FuncMTCEUtils.call(() -> new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
+    public static TS_DirectoryWatchDriver ofRecursive(Path dir, TGS_FuncMTU_In1<Path> forFile, TS_FileWatchUtils.Triggers... triggers) {
+        return TGS_FuncMTCUtils.call(() -> new TS_DirectoryWatchDriver(dir, forFile, true, triggers));
     }
 
     @Deprecated //PATH AS FILENAME?
-    public static TS_DirectoryWatchDriver ofFile(Path file, TGS_FuncMTUCE exe) {
+    public static TS_DirectoryWatchDriver ofFile(Path file, TGS_FuncMTU exe) {
         return TS_DirectoryWatchDriver.of(file.getParent(), forFile -> {
             if (forFile.equals(file)) {
                 exe.run();
@@ -84,7 +84,7 @@ public class TS_DirectoryWatchDriver {
         });
     }
 
-    private void processEvents(TGS_FuncMTUCE_In1<Path> forFile) {
+    private void processEvents(TGS_FuncMTU_In1<Path> forFile) {
         while (true) {
             WatchKey key;
             try {
@@ -107,7 +107,7 @@ public class TS_DirectoryWatchDriver {
                     var child = dir.resolve(name);
                     forFile.run(child);
                     if (recursive && (kind == ENTRY_CREATE)) {
-                        TGS_FuncMTCEUtils.run(() -> {
+                        TGS_FuncMTCUtils.run(() -> {
                             if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
                                 registerAll(child);
                             }

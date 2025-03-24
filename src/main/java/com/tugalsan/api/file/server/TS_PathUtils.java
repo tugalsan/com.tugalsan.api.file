@@ -1,7 +1,7 @@
 package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.charset.client.TGS_CharSetCast;
-import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
+import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
@@ -52,7 +52,7 @@ public class TS_PathUtils {
     }
 
     public static boolean isPathable(CharSequence fileOrDirectory) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
             if (isURL && !TGS_CharSetCast.current().toLowerCase(path).startsWith("file:")) {
@@ -63,7 +63,7 @@ public class TS_PathUtils {
     }
 
     public static TGS_UnionExcuse<Path> toPath(CharSequence fileOrDirectory) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
             if (isURL && !TGS_CharSetCast.current().toLowerCase(path).startsWith("file:")) {
@@ -80,7 +80,7 @@ public class TS_PathUtils {
     }
 
     public static TGS_UnionExcuse<Path> of(String path) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             if (TGS_StringUtils.cmn().isNullOrEmpty(path)) {
                 return TGS_UnionExcuse.ofExcuse(d.className, "of", "TGS_StringUtils.cmn().isNullOrEmpty(path)");
             }
@@ -91,7 +91,7 @@ public class TS_PathUtils {
     }
 
     public static Path toPath(Class c) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             var url = c.getProtectionDomain().getCodeSource().getLocation();
             return Path.of(url.toURI());
         });
@@ -106,7 +106,7 @@ public class TS_PathUtils {
     }
 
     public static String substract(String from_childFullPath, String to_parentPath) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             return from_childFullPath.substring(to_parentPath.length() + 1);
         }, exception -> {
             return null;

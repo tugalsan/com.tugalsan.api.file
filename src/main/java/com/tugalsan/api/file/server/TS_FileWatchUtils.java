@@ -1,6 +1,6 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE_In1;
+import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU_In1;
 import com.tugalsan.api.file.server.watch.TS_DirectoryWatchDriver;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.thread.server.sync.TS_ThreadSyncWait;
@@ -15,8 +15,8 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
-import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE;
-import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
+import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU;
+import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
 
 public class TS_FileWatchUtils {
 
@@ -30,7 +30,7 @@ public class TS_FileWatchUtils {
         CREATE, MODIFY, DELETE
     }
 
-    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_FuncMTUCE exe, int maxSeconds, Triggers... types) {
+    public static boolean file(TS_ThreadSyncTrigger killTrigger, Path targetFile, TGS_FuncMTU exe, int maxSeconds, Triggers... types) {
         var targetFileName = TS_FileUtils.getNameFull(targetFile);
         AtomicReference<TGS_Time> lastProcessedFile_lastModified = new AtomicReference();
         return directory(killTrigger, targetFile.getParent(), filename -> {
@@ -90,7 +90,7 @@ public class TS_FileWatchUtils {
     }
 
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
-    public static boolean directoryRecursive(Path directory, TGS_FuncMTUCE_In1<Path> file, Triggers... types) {
+    public static boolean directoryRecursive(Path directory, TGS_FuncMTU_In1<Path> file, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
@@ -99,13 +99,13 @@ public class TS_FileWatchUtils {
         return true;
     }
 
-    public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_FuncMTUCE_In1<String> filename, Triggers... types) {
+    public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_FuncMTU_In1<String> filename, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
             d.ci("watch", "diretory not found", directory);
             return false;
         }
         TS_ThreadAsyncRun.now(killTrigger.newChild(d.className).newChild("directory"), kt -> {
-            TGS_FuncMTCEUtils.run(() -> {
+            TGS_FuncMTCUtils.run(() -> {
                 try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
                     WatchKey key;

@@ -1,6 +1,6 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
+import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,7 +38,7 @@ public class TS_FileSyncUtils {
     }
 
     private static void cleanFile(File file, File toFile) {
-        TGS_FuncMTCEUtils.run(() -> {
+        TGS_FuncMTCUtils.run(() -> {
             if (file.getName().startsWith(".")) {
                 return;
             }
@@ -69,7 +69,7 @@ public class TS_FileSyncUtils {
     }
 
     private static boolean syncFile(File file, File toFile) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             if (file.getName().startsWith(".")) {
                 return true;
             }

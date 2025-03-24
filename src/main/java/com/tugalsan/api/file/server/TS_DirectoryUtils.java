@@ -1,9 +1,9 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCE_OutBool_In1;
+import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU_OutBool_In1;
 import com.tugalsan.api.charset.client.TGS_CharSetCast;
-import com.tugalsan.api.function.client.maythrow.checkedexceptions.TGS_FuncMTCEUtils;
-import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCEUtils;
+import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
+import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTUUtils;
 import java.io.*;
 import java.util.*;
 import java.nio.file.*;
@@ -29,28 +29,28 @@ public class TS_DirectoryUtils {
     }
 
     public static Path setTimeLastModified(Path path, TGS_Time time) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             Files.setAttribute(path, "lastModifiedTime", toFileTime(time));
             return path;
         });
     }
 
     public static Path setTimeAccessTime(Path path, TGS_Time time) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             Files.setAttribute(path, "lastAccessTime", toFileTime(time));
             return path;
         });
     }
 
     public static Path setTimeCreationTime(Path path, TGS_Time time) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             Files.setAttribute(path, "creationTime", toFileTime(time));
             return path;
         });
     }
 
     public static TGS_Time getTimeLastModified(Path path) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             return TGS_Time.ofMillis(Files
                     .readAttributes(path, BasicFileAttributes.class)
                     .lastModifiedTime()
@@ -60,7 +60,7 @@ public class TS_DirectoryUtils {
     }
 
     public static TGS_Time getTimeLastAccessTime(Path path) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             return TGS_Time.ofMillis(Files
                     .readAttributes(path, BasicFileAttributes.class)
                     .lastAccessTime()
@@ -70,7 +70,7 @@ public class TS_DirectoryUtils {
     }
 
     public static TGS_Time getTimeCreationTime(Path path) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             return TGS_Time.ofMillis(Files
                     .readAttributes(path, BasicFileAttributes.class)
                     .creationTime()
@@ -156,17 +156,17 @@ public class TS_DirectoryUtils {
     }
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
-            TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime) {
+            TGS_FuncMTU_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime) {
         copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, filter_srcFile, skipIfSameSizeAndDateAndTime, false);
     }
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
-            TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
+            TGS_FuncMTU_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         copyDirectory(sourceFolder, asDestFolder, overwrite, parallel, filter_srcFile, null, skipIfSameSizeAndDateAndTime, deleteIfExtra);
     }
 
     public static void copyDirectory(Path sourceFolder, Path asDestFolder, boolean overwrite, boolean parallel,
-            TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, TGS_FuncMTUCE_OutBool_In1<Path> filter_srcDir,
+            TGS_FuncMTU_OutBool_In1<Path> filter_srcFile, TGS_FuncMTU_OutBool_In1<Path> filter_srcDir,
             boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         if (filter_srcDir != null && !filter_srcDir.validate(sourceFolder)) {
             d.ce("copyDirectory", "SKIP_DIR", sourceFolder);
@@ -202,12 +202,12 @@ public class TS_DirectoryUtils {
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
-            TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime) {
+            TGS_FuncMTU_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime) {
         copyFiles(sourceFolder, destFolder, overwrite, parallel, filter_srcFile, skipIfSameSizeAndDateAndTime, false);
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
-            TGS_FuncMTUCE_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
+            TGS_FuncMTU_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         var now = TGS_Time.of();
         d.cr("copyFiles.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
         createDirectoriesIfNotExists(destFolder);
@@ -287,7 +287,7 @@ public class TS_DirectoryUtils {
     }
 
     public static TGS_UnionExcuseVoid deleteDirectoryIfExists(Path path, boolean dontDeleteSelfDirectory) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
                 try (var entries = Files.newDirectoryStream(path)) {
                     for (var entry : entries) {
@@ -309,7 +309,7 @@ public class TS_DirectoryUtils {
 
     @Deprecated//MAY NOT BE WORKING ON WINDOWS SERVER 2008 R2
     public static void deleteDirectoryIfExists2(Path path, boolean dontDeleteSelfDirectory) {
-        TGS_FuncMTCEUtils.run(() -> {
+        TGS_FuncMTCUtils.run(() -> {
             if (!isExistDirectory(path)) {
                 return;
             }
@@ -318,7 +318,7 @@ public class TS_DirectoryUtils {
 
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                    return TGS_FuncMTCEUtils.call(() -> {
+                    return TGS_FuncMTCUtils.call(() -> {
                         d.ci("visitFile", file);
                         if (TS_FileUtils.isExistFile(file)) {
                             Files.delete(file);
@@ -329,7 +329,7 @@ public class TS_DirectoryUtils {
 
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                    return TGS_FuncMTCEUtils.call(() -> {
+                    return TGS_FuncMTCUtils.call(() -> {
                         d.ci("postVisitDirectory", dir);
                         if (TGS_CharSetCast.current().equalsIgnoreCase(dir.toAbsolutePath().toString(), pathStr)) {
                             return FileVisitResult.CONTINUE;
@@ -350,7 +350,7 @@ public class TS_DirectoryUtils {
     public static Path assureExists(Path path) {
         TS_DirectoryUtils.createDirectoriesIfNotExists(path);
         if (!TS_DirectoryUtils.isExistDirectory(path)) {
-            TGS_FuncMTUCEUtils.thrw(d.className, "assureExists", "!TS_DirectoryUtils.isExistDirectory(path)");
+            TGS_FuncMTUUtils.thrw(d.className, "assureExists", "!TS_DirectoryUtils.isExistDirectory(path)");
         }
         return path;
     }
@@ -368,7 +368,7 @@ public class TS_DirectoryUtils {
     }
 
     public static TGS_UnionExcuseVoid createDirectoriesIfNotExists(Path directory) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             if (!isExistDirectory(directory)) {
                 directory.toFile().mkdirs();
                 //return Files.createDirectories(directory);//BUGGY
@@ -384,7 +384,7 @@ public class TS_DirectoryUtils {
     }
 
     public static boolean isEmptyDirectory(Path directory, boolean recursive, boolean parallel) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             if (recursive) {
                 if (!isExistDirectory(directory)) {
                     return false;
@@ -410,7 +410,7 @@ public class TS_DirectoryUtils {
     }
 
     public static TGS_UnionExcuseVoid deleteDirectoryIfExistsIfEmpty(Path directory, boolean recursive) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             if (recursive) {
                 if (!isEmptyDirectory(directory, true, false)) {
                     return TGS_UnionExcuseVoid.ofExcuse(d.className, "deleteDirectoryIfExistsIfEmpty", "!isEmptyDirectory(directory, true, false)");
@@ -449,7 +449,7 @@ public class TS_DirectoryUtils {
 
     //DONT TOUCH: ARRAYLIST<PATH> DOES NOT WORKING, DONT KNOW WHY!!
     public static List<String> subFiles2(Path parentDirectory, CharSequence fileNameMatcher, boolean sorted, boolean recursive) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             assureExists(parentDirectory);
             List<String> subFiles;
             if (fileNameMatcher == null) {
@@ -499,7 +499,7 @@ public class TS_DirectoryUtils {
     }
 
     public static List<Path> subDirectories(Path parentDirectory, boolean sorted, boolean recursive) {
-        return TGS_FuncMTCEUtils.call(() -> {
+        return TGS_FuncMTCUtils.call(() -> {
             assureExists(parentDirectory);
             List<Path> subDirectories;
             if (recursive) {
