@@ -79,6 +79,12 @@ public class TS_FileUtils {
             return path;
         });
     }
+    
+    public static Path setTimeTimes(Path path, TGS_Time time) {
+        setTimeCreationTime(path, time);
+        setTimeLastModified(path, time);
+        return setTimeAccessTime(path, time);
+    }
 
     public static TGS_Time getTimeLastModified(Path path) {
         return TGS_FuncMTCUtils.call(() -> {
