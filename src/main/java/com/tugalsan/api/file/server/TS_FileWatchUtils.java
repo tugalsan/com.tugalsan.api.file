@@ -135,7 +135,7 @@ public class TS_FileWatchUtils {
                         key.reset();
                     }
                 }
-            });
+            }, e -> d.ce("directory", directory, e.getMessage(), "SKIP THIS ERROR ON RE-DEPLOY"));
         });
         return true;
     }
