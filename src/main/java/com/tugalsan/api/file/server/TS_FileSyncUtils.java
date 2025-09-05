@@ -1,6 +1,7 @@
 package com.tugalsan.api.file.server;
 
 import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
+import com.tugalsan.api.log.server.TS_Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,6 +9,11 @@ import java.util.Objects;
 
 @Deprecated //NOT TESTET WHATSOEVER
 public class TS_FileSyncUtils {
+
+    private static TS_Log d() {
+        return d.orElse(TS_Log.of( TS_FileSyncUtils.class));
+    }
+    final private static StableValue<TS_Log> d = StableValue.of();
 
     private TS_FileSyncUtils() {
 
@@ -30,7 +36,7 @@ public class TS_FileSyncUtils {
                 if (!file.getName().startsWith(".")) {
                     clean(file.getAbsolutePath(), destFile.getAbsolutePath());
                     if (!destFile.exists()) {
-                        file.delete();
+                        destFile.delete();
                     }
                 }
             }
@@ -43,7 +49,7 @@ public class TS_FileSyncUtils {
                 return;
             }
             if (!toFile.exists()) {
-                System.out.println(" delete --> " + file);
+                d().cr(" delete --> " + file);
                 file.delete();
             }
         });
@@ -76,7 +82,7 @@ public class TS_FileSyncUtils {
             if (Objects.equals(TS_FileUtils.getChecksumLng(file.toPath()).value(), TS_FileUtils.getChecksumLng(toFile.toPath()).value())) {
                 return true;
             }
-            System.out.println(file + " -- sync --> " + toFile);
+            d().cr(file + " -- sync --> " + toFile);
             try (var in = new FileInputStream(file); var out = new FileOutputStream(toFile);) {
                 var buffer = new byte[1024];
                 var len = in.read(buffer);

@@ -15,7 +15,10 @@ import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUt
 
 public class TS_DirectoryWatchDriver {
 
-    public static TS_Log d = TS_Log.of(TS_DirectoryWatchDriver.class);
+    private static TS_Log d() {
+        return d.orElse(TS_Log.of( TS_DirectoryWatchDriver.class));
+    }
+    final private static StableValue<TS_Log> d = StableValue.of();
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
     private final boolean recursive;
@@ -27,13 +30,13 @@ public class TS_DirectoryWatchDriver {
 
     private void register(Path dir, Triggers... triggers) throws IOException {
         var key = dir.register(watcher, TS_FileWatchUtils.cast(triggers));
-        if (d.infoEnable) {
+        if (d().infoEnable) {
             var prev = keys.get(key);
             if (prev == null) {
-                d.ci("register", "register: %s\n".formatted(dir));
+                d().ci("register", "register: %s\n".formatted(dir));
             } else {
                 if (!dir.equals(prev)) {
-                    d.ci("register", "update: %s -> %s\n".formatted(prev, dir));
+                    d().ci("register", "update: %s -> %s\n".formatted(prev, dir));
                 }
             }
         }
@@ -56,9 +59,9 @@ public class TS_DirectoryWatchDriver {
         this.recursive = recursive;
 
         if (recursive) {
-            d.ci("constructor.recursive", "Scanning %s ...\n".formatted(dir));
+            d().ci("constructor.recursive", "Scanning %s ...\n".formatted(dir));
             registerAll(dir, triggers);
-            d.ci("constructor.recursive", "Done.");
+            d().ci("constructor.recursive", "Done.");
         } else {
             register(dir, triggers);
         }
@@ -95,7 +98,7 @@ public class TS_DirectoryWatchDriver {
 
             var dir = keys.get(key);
             if (dir == null) {
-                d.ce("WatchKey not recognized!!");
+                d().ce("WatchKey not recognized!!");
                 continue;
             }
 
@@ -111,7 +114,7 @@ public class TS_DirectoryWatchDriver {
                             if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
                                 registerAll(child);
                             }
-                        }, e -> d.ce("processEvents", e));
+                        }, e -> d().ce("processEvents", e));
                     }
                 }
             });
