@@ -6,14 +6,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 @Deprecated //NOT TESTET WHATSOEVER
 public class TS_FileSyncUtils {
 
-    private static TS_Log d() {
-        return d.orElse(TS_Log.of( TS_FileSyncUtils.class));
-    }
-    final private static StableValue<TS_Log> d = StableValue.of();
+    final private static Supplier<TS_Log> d = StableValue.supplier(() -> TS_Log.of(TS_FileSyncUtils.class));
 
     private TS_FileSyncUtils() {
 
@@ -49,7 +47,7 @@ public class TS_FileSyncUtils {
                 return;
             }
             if (!toFile.exists()) {
-                d().cr(" delete --> " + file);
+                d.get().cr(" delete --> " + file);
                 file.delete();
             }
         });
@@ -82,7 +80,7 @@ public class TS_FileSyncUtils {
             if (Objects.equals(TS_FileUtils.getChecksumLng(file.toPath()).value(), TS_FileUtils.getChecksumLng(toFile.toPath()).value())) {
                 return true;
             }
-            d().cr(file + " -- sync --> " + toFile);
+            d.get().cr(file + " -- sync --> " + toFile);
             try (var in = new FileInputStream(file); var out = new FileOutputStream(toFile);) {
                 var buffer = new byte[1024];
                 var len = in.read(buffer);

@@ -15,6 +15,7 @@ import com.tugalsan.api.os.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
 import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
+import java.util.function.Supplier;
 
 public class TS_DirectoryUtils {
 
@@ -22,10 +23,7 @@ public class TS_DirectoryUtils {
 
     }
 
-    private static TS_Log d() {
-        return d.orElse(TS_Log.of( TS_DirectoryUtils.class));
-    }
-    final private static StableValue<TS_Log> d = StableValue.of();
+    final private static Supplier<TS_Log> d = StableValue.supplier(() -> TS_Log.of(TS_DirectoryUtils.class));
 
     public static FileTime toFileTime(TGS_Time time) {
         return FileTime.fromMillis(time.toDateMillis());
@@ -108,13 +106,13 @@ public class TS_DirectoryUtils {
     }
 
     public static void flattenDirectory(Path sourceFolder, boolean parallel) {
-        d().ci("flattenDirectory", "sourceFolder", sourceFolder);
+        d.get().ci("flattenDirectory", "sourceFolder", sourceFolder);
         var subDirs = subDirectories(sourceFolder, false, false);
-        d().ci("flattenDirectory", "subDirs.size()", subDirs.size());
+        d.get().ci("flattenDirectory", "subDirs.size()", subDirs.size());
         (parallel ? subDirs.parallelStream() : subDirs.stream()).forEach(subDir -> {
-            d().ci("flattenDirectory", "subDirs", subDirs);
+            d.get().ci("flattenDirectory", "subDirs", subDirs);
             var subFiles = subFiles(subDir, null, false, true);
-            d().ci("flattenDirectory", "subFiles.size()", subFiles.size());
+            d.get().ci("flattenDirectory", "subFiles.size()", subFiles.size());
             (parallel ? subFiles.parallelStream() : subFiles.stream()).forEach(subFile -> {
                 TS_FileUtils.moveToFolder(subFile, sourceFolder, true);
             });
@@ -143,11 +141,11 @@ public class TS_DirectoryUtils {
             createDirectoriesIfNotExists(Path.of(strDestDir));
         });
         (parallel ? strSubFiles.parallelStream() : strSubFiles.stream()).forEach(strSubFile -> {
-            d().ci("strSubFile", strSubFile);
+            d.get().ci("strSubFile", strSubFile);
             var strDestFile = strSubFile.replace(strSource, strDest);
-            d().ci("strDestFile", strDestFile);
+            d.get().ci("strDestFile", strDestFile);
             var strDestFolder = Path.of(strDestFile).getParent();
-            d().ci("strDestFolder", strDestFolder);
+            d.get().ci("strDestFolder", strDestFolder);
             TS_FileUtils.moveToFolder(Path.of(strSubFile), strDestFolder, overwrite);
         });
 
@@ -172,11 +170,11 @@ public class TS_DirectoryUtils {
             TGS_FuncMTU_OutBool_In1<Path> filter_srcFile, TGS_FuncMTU_OutBool_In1<Path> filter_srcDir,
             boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         if (filter_srcDir != null && !filter_srcDir.validate(sourceFolder)) {
-            d().ce("copyDirectory", "SKIP_DIR", sourceFolder);
+            d.get().ce("copyDirectory", "SKIP_DIR", sourceFolder);
             return;
         }
         var now = TGS_Time.of();
-        d().cr("copyDirectory.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
+        d.get().cr("copyDirectory.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
         var dstParentDirectory = asDestFolder.toAbsolutePath().toString();
         var srcSubDirectories = subDirectories(sourceFolder, false, false);
         (parallel ? srcSubDirectories.parallelStream() : srcSubDirectories.stream()).forEach(srcSubDirextory -> {
@@ -191,13 +189,13 @@ public class TS_DirectoryUtils {
             ).forEach(dstSubDirectory -> {
                 var u_delete = TS_DirectoryUtils.deleteDirectoryIfExists(dstSubDirectory);
                 if (u_delete.isExcuse()) {
-                    d().cr("copyDirectory", "cannot delete dir", dstSubDirectory, u_delete.excuse().getMessage());
+                    d.get().cr("copyDirectory", "cannot delete dir", dstSubDirectory, u_delete.excuse().getMessage());
                 }
             });
         }
         copyFiles(sourceFolder, asDestFolder, overwrite, parallel, filter_srcFile, skipIfSameSizeAndDateAndTime, deleteIfExtra);
         now.setToTodayAndNow();
-        d().cr("copyDirectory.i", "end", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
+        d.get().cr("copyDirectory.i", "end", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, asDestFolder, "parallel", parallel, "overwrite", overwrite, "skipIfSameSizeAndDateAndTime", skipIfSameSizeAndDateAndTime, "deleteIfExtra", deleteIfExtra);
     }
 
     public static void copyFiles(Path sourceFolder, Path destFolder) {
@@ -212,7 +210,7 @@ public class TS_DirectoryUtils {
     public static void copyFiles(Path sourceFolder, Path destFolder, boolean overwrite, boolean parallel,
             TGS_FuncMTU_OutBool_In1<Path> filter_srcFile, boolean skipIfSameSizeAndDateAndTime, boolean deleteIfExtra) {
         var now = TGS_Time.of();
-        d().cr("copyFiles.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
+        d.get().cr("copyFiles.i", "start", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
         createDirectoriesIfNotExists(destFolder);
         var dstParentDirectory = destFolder.toAbsolutePath().toString();
         var srcSubFiles = subFiles(sourceFolder, null, false, false);
@@ -220,7 +218,7 @@ public class TS_DirectoryUtils {
             if (filter_srcFile != null) {
                 var valid = filter_srcFile.validate(srcFile);
                 if (!valid) {
-                    d().ce("copyDirectory", "SKIP_FILE", srcFile);
+                    d.get().ce("copyDirectory", "SKIP_FILE", srcFile);
                     return;
                 }
             }
@@ -241,7 +239,7 @@ public class TS_DirectoryUtils {
                     }
                 }
             }
-            d().cr("copyFiles.f", srcFile, dstFile, overwrite);
+            d.get().cr("copyFiles.f", srcFile, dstFile, overwrite);
             TS_FileUtils.copyAs(srcFile, dstFile, overwrite);
         });
         if (deleteIfExtra) {
@@ -252,29 +250,29 @@ public class TS_DirectoryUtils {
             ).forEach(dstSubFiles -> {
                 var u_delete = TS_FileUtils.deleteFileIfExists(dstSubFiles);
                 if (u_delete.isExcuse()) {
-                    d().cr("copyFiles", "cannot delete file", dstSubFiles, u_delete.excuse().getMessage());
+                    d.get().cr("copyFiles", "cannot delete file", dstSubFiles, u_delete.excuse().getMessage());
                 }
             });
         }
         now.setToTodayAndNow();
-        d().cr("copyFiles.i", "end", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
+        d.get().cr("copyFiles.i", "end", now.toString_dateOnly(), now.toString_timeOnly_simplified(), sourceFolder, destFolder, "overwrite", overwrite, "parallel", parallel, "deleteIfExtra", deleteIfExtra);
     }
 
     public static void deleteSubDirectories(Path parentDirectory, boolean parallel) {
         var subDirectories = subDirectories(parentDirectory, false, false);
         (parallel ? subDirectories.parallelStream() : subDirectories.stream()).forEach(subDir -> {
-            d().cr("deleteSubDirectories", "by deleteDirectoryIfExists", subDir);
+            d.get().cr("deleteSubDirectories", "by deleteDirectoryIfExists", subDir);
             deleteDirectoryIfExists(subDir);
         });
     }
 
     public static void deleteSubDirectories_withBat(Path parentDirectory) {
-        d().cr("deleteSubDirectories", "by bat", parentDirectory);
+        d.get().cr("deleteSubDirectories", "by bat", parentDirectory);
         var batCode = new StringJoiner("\n");
         batCode.add(TS_PathUtils.getDriveLetter(parentDirectory) + ":");
         batCode.add("cd " + parentDirectory.toAbsolutePath().toString());
         batCode.add("FOR /d /r . %%d IN (backdrops) DO @IF EXIST \"%%d\" rd /s /q \"%%d\"");
-        d().cr("deleteSubDirectories", "batCode", batCode);
+        d.get().cr("deleteSubDirectories", "batCode", batCode);
         TS_OsProcess.ofCode(batCode.toString(), TS_OsProcess.CodeType.BAT);
     }
 
@@ -322,7 +320,7 @@ public class TS_DirectoryUtils {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     return TGS_FuncMTCUtils.call(() -> {
-                        d().ci("visitFile", file);
+                        d.get().ci("visitFile", file);
                         if (TS_FileUtils.isExistFile(file)) {
                             Files.delete(file);
                         }
@@ -333,7 +331,7 @@ public class TS_DirectoryUtils {
                 @Override
                 public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
                     return TGS_FuncMTCUtils.call(() -> {
-                        d().ci("postVisitDirectory", dir);
+                        d.get().ci("postVisitDirectory", dir);
                         if (TGS_CharSetCast.current().equalsIgnoreCase(dir.toAbsolutePath().toString(), pathStr)) {
                             return FileVisitResult.CONTINUE;
                         }
@@ -353,7 +351,7 @@ public class TS_DirectoryUtils {
     public static Path assureExists(Path path) {
         TS_DirectoryUtils.createDirectoriesIfNotExists(path);
         if (!TS_DirectoryUtils.isExistDirectory(path)) {
-            TGS_FuncMTUUtils.thrw(d().className, "assureExists", "!TS_DirectoryUtils.isExistDirectory(path)");
+            TGS_FuncMTUUtils.thrw(d.get().className, "assureExists", "!TS_DirectoryUtils.isExistDirectory(path)");
         }
         return path;
     }
@@ -416,7 +414,7 @@ public class TS_DirectoryUtils {
         return TGS_FuncMTCUtils.call(() -> {
             if (recursive) {
                 if (!isEmptyDirectory(directory, true, false)) {
-                    return TGS_UnionExcuseVoid.ofExcuse(d().className, "deleteDirectoryIfExistsIfEmpty", "!isEmptyDirectory(directory, true, false)");
+                    return TGS_UnionExcuseVoid.ofExcuse(d.get().className, "deleteDirectoryIfExistsIfEmpty", "!isEmptyDirectory(directory, true, false)");
                 }
                 return deleteDirectoryIfExists(directory);
             }
@@ -430,16 +428,16 @@ public class TS_DirectoryUtils {
     }
 
     public static List<Path> subFilesByType(Path path, String type) {
-        d().ci("subFilesByType", path, "type", type);
+        d.get().ci("subFilesByType", path, "type", type);
         var files = TS_DirectoryUtils.subFiles(path, "*." + type, false, false);
-        d().ci("subFilesByType", path, "size", files.size());
+        d.get().ci("subFilesByType", path, "size", files.size());
         return files;
     }
 
     public static List<Path> subFilesNameStartsWith(Path path, String nameStartsWith) {
-        d().ci("getFiles_Zip", "path", path, "prefix", nameStartsWith);
+        d.get().ci("getFiles_Zip", "path", path, "prefix", nameStartsWith);
         var files = TS_DirectoryUtils.subFiles(path, nameStartsWith + "_*.*", false, false);
-        d().ci("getFiles_Zip", path, "size", files.size());
+        d.get().ci("getFiles_Zip", path, "size", files.size());
         return files;
     }
 

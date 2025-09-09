@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU;
 import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
+import java.util.function.Supplier;
 
 public class TS_FileWatchUtils {
 
@@ -24,10 +25,7 @@ public class TS_FileWatchUtils {
 
     }
 
-    private static TS_Log d() {
-        return d.orElse(TS_Log.of( TS_FileWatchUtils.class));
-    }
-    final private static StableValue<TS_Log> d = StableValue.of();
+    final private static Supplier<TS_Log> d = StableValue.supplier(() -> TS_Log.of(TS_FileWatchUtils.class));
 
     public static enum Triggers {
         CREATE, MODIFY, DELETE
@@ -38,28 +36,28 @@ public class TS_FileWatchUtils {
         AtomicReference<TGS_Time> lastProcessedFile_lastModified = new AtomicReference();
         return directory(killTrigger, targetFile.getParent(), filename -> {
             if (!targetFileName.equals(filename)) {
-                d().ci("file", "INFO:skipped", "filenames not same", targetFile, filename);
+                d.get().ci("file", "INFO:skipped", "filenames not same", targetFile, filename);
                 return;
             }
-            d().ci("file", "filenames same", targetFile, filename);
+            d.get().ci("file", "filenames same", targetFile, filename);
             var totalSeconds = 0;
             var gapSeconds = 10;
             while (TS_FileUtils.isFileLocked(targetFile)) {
-                d().cr("file", "file lock detected ", "waiting...", targetFile);
+                d.get().cr("file", "file lock detected ", "waiting...", targetFile);
                 TS_ThreadSyncWait.seconds("file", killTrigger, gapSeconds);
                 totalSeconds += gapSeconds;
                 if (totalSeconds > maxSeconds) {
-                    d().cr("file", "file lock detected ", "totalSeconds > maxSeconds", "failed...", targetFile);
+                    d.get().cr("file", "file lock detected ", "totalSeconds > maxSeconds", "failed...", targetFile);
                     return;
                 }
             }
             var lastModified = TS_FileUtils.getTimeLastModified(targetFile);
             if (lastModified == null) {
-                d().ce("file", "cannot fetch lastModified", "skipping...", targetFile);
+                d.get().ce("file", "cannot fetch lastModified", "skipping...", targetFile);
                 return;
             }
             if (lastModified.equals(lastProcessedFile_lastModified.get())) {
-                d().ce("file", "lastProcessedFile detected", "skipping...");
+                d.get().ce("file", "lastProcessedFile detected", "skipping...");
                 return;
             }
             lastProcessedFile_lastModified.set(lastModified);
@@ -95,7 +93,7 @@ public class TS_FileWatchUtils {
     @Deprecated //DOUBLE NOTIFY? AND PATH AS FILENAME?
     public static boolean directoryRecursive(Path directory, TGS_FuncMTU_In1<Path> file, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
-            d().ci("watch", "diretory not found", directory);
+            d.get().ci("watch", "diretory not found", directory);
             return false;
         }
         TS_DirectoryWatchDriver.ofRecursive(directory, file, types);
@@ -104,10 +102,10 @@ public class TS_FileWatchUtils {
 
     public static boolean directory(TS_ThreadSyncTrigger killTrigger, Path directory, TGS_FuncMTU_In1<String> filename, Triggers... types) {
         if (!TS_DirectoryUtils.isExistDirectory(directory)) {
-            d().ci("watch", "diretory not found", directory);
+            d.get().ci("watch", "diretory not found", directory);
             return false;
         }
-        TS_ThreadAsyncRun.now(killTrigger.newChild(d().className).newChild("directory"), kt -> {
+        TS_ThreadAsyncRun.now(killTrigger.newChild(d.get().className).newChild("directory"), kt -> {
             TGS_FuncMTCUtils.run(() -> {
                 try (var watchService = FileSystems.getDefault().newWatchService()) {
                     directory.register(watchService, cast(types));
@@ -119,26 +117,26 @@ public class TS_FileWatchUtils {
                                 directoryBuffer.value0 = TGS_Time.of();
                                 directoryBuffer.value1 = detectedFile;
                                 filename.run(TS_FileUtils.getNameFull(detectedFile));
-                                d().ci("directory", "new", directoryBuffer.value1);
+                                d.get().ci("directory", "new", directoryBuffer.value1);
                                 continue;
                             }
                             var oneSecondAgo = TGS_Time.ofSecondsAgo(1);
                             {//SKIP IF DOUBLE NOTIFY
                                 if (oneSecondAgo.hasSmallerTimeThanOrEqual(directoryBuffer.value0)) {
-                                    d().ci("directory", "skipped", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                                    d.get().ci("directory", "skipped", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
                                     continue;
                                 }
                             }
                             {//NOTIFY
                                 directoryBuffer.value0 = oneSecondAgo.incrementSecond(1);
-                                d().ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
+                                d.get().ci("directory", "passed", "oneSecondAgo", oneSecondAgo.toString_timeOnly(), "last", directoryBuffer.value0);
                                 filename.run(TS_FileUtils.getNameFull(detectedFile));
                             }
                         }
                         key.reset();
                     }
                 }
-            }, e -> d().ce("directory", directory, e.getMessage(), "SKIP THIS ERROR ON RE-DEPLOY"));
+            }, e -> d.get().ce("directory", directory, e.getMessage(), "SKIP THIS ERROR ON RE-DEPLOY"));
         });
         return true;
     }
