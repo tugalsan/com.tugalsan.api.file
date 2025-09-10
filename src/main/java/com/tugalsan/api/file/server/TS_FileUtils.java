@@ -17,13 +17,12 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
-import java.util.function.Supplier;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
 public class TS_FileUtils {
 
-    final private static Supplier<TS_Log> d = StableValue.supplier(() -> TS_Log.of(TS_FileUtils.class));
+    final private static TS_Log d = TS_Log.of(TS_FileUtils.class);
 
     public static TGS_UnionExcuse<Boolean> hasSameContent(Path file1, Path file2, boolean abuseMemory) {
         return TGS_FuncMTCUtils.call(() -> {
@@ -158,7 +157,7 @@ public class TS_FileUtils {
 
     public static TGS_UnionExcuse<Path> createFileTemp(String suffix) {
         return TGS_FuncMTCUtils.call(() -> {
-            var file = File.createTempFile(d.get().className, suffix);
+            var file = File.createTempFile(d.className(), suffix);
             file.deleteOnExit();
             return TGS_UnionExcuse.of(file.toPath());
         }, e -> TGS_UnionExcuse.ofExcuse(e));
@@ -170,7 +169,7 @@ public class TS_FileUtils {
             Files.createFile(file);
             return true;
         }, exception -> {
-            d.get().ce("createFile", file, exception);
+            d.ce("createFile", file, exception);
             return false;
         });
     }
@@ -240,7 +239,7 @@ public class TS_FileUtils {
 
     public static Path moveAs(Path sourceFile, Path asDestFile, boolean overwrite) {
         return TGS_FuncMTCUtils.call(() -> {
-            d.get().ci("moveAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
+            d.ci("moveAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
                 return asDestFile;
             }
@@ -248,7 +247,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_FuncMTCUtils.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.get().ct("moveAs", e));
+            TGS_FuncMTCUtils.run(() -> Files.move(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ct("moveAs", e));
             return asDestFile;
         }, e -> {
             e.printStackTrace();
@@ -257,20 +256,20 @@ public class TS_FileUtils {
     }
 
     public static Path moveToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
-        d.get().ci("moveToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
+        d.ci("moveToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
         var asDestFile = destFolder.resolve(sourceFile.getFileName());
         return moveAs(sourceFile, asDestFile, overwrite);
     }
 
     public static Path copyToFolder(Path sourceFile, Path destFolder, boolean overwrite) {
-        d.get().ci("copyToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
+        d.ci("copyToFolder", "sourceFile", sourceFile, "destFolder", destFolder);
         var asDestFile = destFolder.resolve(sourceFile.getFileName());
         return copyAs(sourceFile, asDestFile, overwrite);
     }
 
     public static Path copyAs(Path sourceFile, Path asDestFile, boolean overwrite) {
         return TGS_FuncMTCUtils.call(() -> {
-            d.get().ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
+            d.ci("copyAs", "sourceFile", sourceFile, "asDestFile", asDestFile);
             if (Objects.equals(sourceFile.toAbsolutePath().toString(), asDestFile.toAbsolutePath().toString())) {
                 return asDestFile;
             }
@@ -278,7 +277,7 @@ public class TS_FileUtils {
             if (!overwrite && isExistFile(asDestFile)) {
                 return null;
             }
-            TGS_FuncMTCUtils.run(() -> Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.get().ce("copyAs", e));
+            TGS_FuncMTCUtils.run(() -> Files.copy(sourceFile, asDestFile, StandardCopyOption.REPLACE_EXISTING), e -> d.ce("copyAs", e));
             if (!isExistFile(asDestFile)) {
                 return null;
             }
@@ -292,7 +291,7 @@ public class TS_FileUtils {
     public static Path copyAsAssure(Path source, Path dest, boolean overwrite) {
         var path = copyAs(source, dest, overwrite);
         if (!isExistFile(dest)) {
-            TGS_FuncMTUUtils.thrw(d.get().className, "copyAsAssure", "!isExistFile(dest):" + dest);
+            TGS_FuncMTUUtils.thrw(d.className(), "copyAsAssure", "!isExistFile(dest):" + dest);
         }
         return path;
     }
@@ -347,7 +346,7 @@ public class TS_FileUtils {
             return url.openConnection().getContentType().replace(";charset=UTF-8", "");
         }, e -> null);
         if (typeByURLConnection == null) {
-            return TGS_UnionExcuse.ofExcuse(d.get().className, "mime", "Cannot detect type for " + urlFile);
+            return TGS_UnionExcuse.ofExcuse(d.className(), "mime", "Cannot detect type for " + urlFile);
         }
         return TGS_UnionExcuse.of(typeByURLConnection);
     }

@@ -10,7 +10,6 @@ import com.tugalsan.api.log.server.*;
 import com.tugalsan.api.stream.client.*;
 import com.tugalsan.api.string.client.TGS_StringUtils;
 import com.tugalsan.api.union.client.TGS_UnionExcuse;
-import java.util.function.Supplier;
 
 public class TS_PathUtils {
 
@@ -18,7 +17,7 @@ public class TS_PathUtils {
 
     }
 
-    final private static Supplier<TS_Log> d = StableValue.supplier(() -> TS_Log.of(TS_PathUtils.class));
+    final private static TS_Log d = TS_Log.of(TS_PathUtils.class);
 
     public static Path getPathHomeDesktop() {
         return getPathHome().resolve("Desktop");
@@ -68,14 +67,14 @@ public class TS_PathUtils {
             var path = fileOrDirectory.toString();
             var isURL = path.contains("://");
             if (isURL && !TGS_CharSetCast.current().toLowerCase(path).startsWith("file:")) {
-                d.get().ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
-                return TGS_UnionExcuse.ofExcuse(d.get().className, "toPath",
+                d.ci("toPathAndError", "PATH ONLY SUPPORTS FILE://", fileOrDirectory);
+                return TGS_UnionExcuse.ofExcuse(d.className(), "toPath",
                         "PATH ONLY SUPPORTS FILE://, fileOrDirectory:{" + fileOrDirectory + "]"
                 );
             }
             return TGS_UnionExcuse.of(isURL ? Path.of(URI.create(path)) : Path.of(path));
         }, e -> {
-            d.get().ci("toPathAndError", e);
+            d.ci("toPathAndError", e);
             return TGS_UnionExcuse.ofExcuse(e);
         });
     }
@@ -83,7 +82,7 @@ public class TS_PathUtils {
     public static TGS_UnionExcuse<Path> of(String path) {
         return TGS_FuncMTCUtils.call(() -> {
             if (TGS_StringUtils.cmn().isNullOrEmpty(path)) {
-                return TGS_UnionExcuse.ofExcuse(d.get().className, "of", "TGS_StringUtils.cmn().isNullOrEmpty(path)");
+                return TGS_UnionExcuse.ofExcuse(d.className(), "of", "TGS_StringUtils.cmn().isNullOrEmpty(path)");
             }
             return TGS_UnionExcuse.of(Path.of(path));
         }, e -> {

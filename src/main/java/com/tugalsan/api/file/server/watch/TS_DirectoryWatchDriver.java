@@ -3,7 +3,6 @@ package com.tugalsan.api.file.server.watch;
 import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU_In1;
 import com.tugalsan.api.file.server.TS_FileWatchUtils;
 import com.tugalsan.api.file.server.TS_FileWatchUtils.Triggers;
-import com.tugalsan.api.file.server.TS_PathUtils;
 import com.tugalsan.api.log.server.TS_Log;
 import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -13,11 +12,10 @@ import java.io.*;
 import java.util.*;
 import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU;
 import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
-import java.util.function.Supplier;
 
 public class TS_DirectoryWatchDriver {
 
-    final private static Supplier<TS_Log> d = StableValue.supplier(() -> TS_Log.of(TS_DirectoryWatchDriver.class));
+    final private static TS_Log d = TS_Log.of(TS_DirectoryWatchDriver.class);
     private final WatchService watcher;
     private final Map<WatchKey, Path> keys;
     private final boolean recursive;
@@ -29,13 +27,13 @@ public class TS_DirectoryWatchDriver {
 
     private void register(Path dir, Triggers... triggers) throws IOException {
         var key = dir.register(watcher, TS_FileWatchUtils.cast(triggers));
-        if (d.get().infoEnable) {
+        if (d.infoEnable) {
             var prev = keys.get(key);
             if (prev == null) {
-                d.get().ci("register", "register: %s\n".formatted(dir));
+                d.ci("register", "register: %s\n".formatted(dir));
             } else {
                 if (!dir.equals(prev)) {
-                    d.get().ci("register", "update: %s -> %s\n".formatted(prev, dir));
+                    d.ci("register", "update: %s -> %s\n".formatted(prev, dir));
                 }
             }
         }
@@ -58,9 +56,9 @@ public class TS_DirectoryWatchDriver {
         this.recursive = recursive;
 
         if (recursive) {
-            d.get().ci("constructor.recursive", "Scanning %s ...\n".formatted(dir));
+            d.ci("constructor.recursive", "Scanning %s ...\n".formatted(dir));
             registerAll(dir, triggers);
-            d.get().ci("constructor.recursive", "Done.");
+            d.ci("constructor.recursive", "Done.");
         } else {
             register(dir, triggers);
         }
@@ -97,7 +95,7 @@ public class TS_DirectoryWatchDriver {
 
             var dir = keys.get(key);
             if (dir == null) {
-                d.get().ce("WatchKey not recognized!!");
+                d.ce("WatchKey not recognized!!");
                 continue;
             }
 
@@ -113,7 +111,7 @@ public class TS_DirectoryWatchDriver {
                             if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
                                 registerAll(child);
                             }
-                        }, e -> d.get().ce("processEvents", e));
+                        }, e -> d.ce("processEvents", e));
                     }
                 }
             });
