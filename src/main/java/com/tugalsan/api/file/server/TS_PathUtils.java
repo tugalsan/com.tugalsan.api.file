@@ -1,15 +1,15 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.charset.client.TGS_CharSetCast;
-import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
+import module com.tugalsan.api.charset;
+import module com.tugalsan.api.function;
+import module com.tugalsan.api.log;
+import module com.tugalsan.api.stream;
+import module com.tugalsan.api.string;
+import module com.tugalsan.api.union;
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
 import java.util.*;
-import com.tugalsan.api.log.server.*;
-import com.tugalsan.api.stream.client.*;
-import com.tugalsan.api.string.client.TGS_StringUtils;
-import com.tugalsan.api.union.client.TGS_UnionExcuse;
 
 public class TS_PathUtils {
 

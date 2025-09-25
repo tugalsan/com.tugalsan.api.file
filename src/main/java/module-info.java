@@ -1,7 +1,6 @@
 module com.tugalsan.api.file {
     requires java.xml.bind;
-    requires com.tugalsan.api.list;
-    
+    requires com.tugalsan.api.list;    
     requires com.tugalsan.api.union;
     requires com.tugalsan.api.function;
     requires com.tugalsan.api.tuple;

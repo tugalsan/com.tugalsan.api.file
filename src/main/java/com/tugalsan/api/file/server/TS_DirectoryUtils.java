@@ -1,20 +1,17 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTU_OutBool_In1;
-import com.tugalsan.api.charset.client.TGS_CharSetCast;
-import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
-import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTUUtils;
+import module com.tugalsan.api.charset;
+import module com.tugalsan.api.function;
+import module com.tugalsan.api.list;
+import module com.tugalsan.api.time;
+import module com.tugalsan.api.log;
+import module com.tugalsan.api.os;
+import module com.tugalsan.api.stream;
+import module com.tugalsan.api.union;
 import java.io.*;
 import java.util.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
-import com.tugalsan.api.list.client.*;
-import com.tugalsan.api.time.client.*;
-import com.tugalsan.api.log.server.*;
-import com.tugalsan.api.os.server.*;
-import com.tugalsan.api.stream.client.*;
-import com.tugalsan.api.union.client.TGS_UnionExcuse;
-import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
 
 public class TS_DirectoryUtils {
 

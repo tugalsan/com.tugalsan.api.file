@@ -1,24 +1,20 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
-import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTUUtils;
+import module com.tugalsan.api.function;
+import module com.tugalsan.api.time;
+import module com.tugalsan.api.log;
+import module com.tugalsan.api.stream;
+import module com.tugalsan.api.string;
+import module com.tugalsan.api.union;
+import module java.xml.bind;
 import java.util.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
 import java.security.*;
-import javax.xml.bind.*;
-import com.tugalsan.api.time.client.*;
-import com.tugalsan.api.log.server.*;
-import com.tugalsan.api.stream.client.*;
-import com.tugalsan.api.string.client.TGS_StringUtils;
-import com.tugalsan.api.union.client.TGS_UnionExcuse;
-import com.tugalsan.api.union.client.TGS_UnionExcuseVoid;
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.net.URLConnection;
-import java.nio.channels.FileChannel;
-import java.util.zip.CRC32;
-import java.util.zip.CheckedInputStream;
+import java.io.*;
+import java.net.*;
+import java.nio.channels.*;
+import java.util.zip.*;
 
 public class TS_FileUtils {
 

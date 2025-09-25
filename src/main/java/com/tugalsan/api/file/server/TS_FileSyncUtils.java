@@ -1,11 +1,9 @@
 package com.tugalsan.api.file.server;
 
-import com.tugalsan.api.function.client.maythrowexceptions.checked.TGS_FuncMTCUtils;
-import com.tugalsan.api.log.server.TS_Log;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Objects;
+import module com.tugalsan.api.function;
+import module com.tugalsan.api.log;
+import java.io.*;
+import java.util.*;
 
 @Deprecated //NOT TESTET WHATSOEVER
 public class TS_FileSyncUtils {
